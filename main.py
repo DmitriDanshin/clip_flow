@@ -1,7 +1,7 @@
 from src.infrastructure.logger import setup_logger
 from src.application.clipboard_service import ClipboardService
 from src.adapters.pyperclip_adapter import PyperclipAdapter
-from src.adapters.json_storage_adapter import JsonStorageAdapter
+from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
 from src.adapters.tkinter_ui_adapter import TkinterUIAdapter
 from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
 from loguru import logger
@@ -12,7 +12,7 @@ def main():
     logger.info("Preparing to launch Clip Flow.")
 
     clipboard_adapter = PyperclipAdapter()
-    storage_adapter = JsonStorageAdapter("clipboard_history.json")
+    storage_adapter = SqliteStorageAdapter("clipboard_history.db")
     ui_adapter = TkinterUIAdapter()
     search_adapter = FuzzySearchAdapter(max_l_dist=1, case_sensitive=False)
 
