@@ -6,9 +6,12 @@ requires-python = ">=3.12"
 dependencies = [
     "loguru>=0.7.3",
     "pyperclip>=1.9.0",
+    "fuzzysearch>=0.8.0",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
     "ruff>=0.12.11",
 ]

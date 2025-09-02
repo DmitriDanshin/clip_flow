@@ -3,7 +3,7 @@ from src.application.clipboard_service import ClipboardService
 from src.adapters.pyperclip_adapter import PyperclipAdapter
 from src.adapters.json_storage_adapter import JsonStorageAdapter
 from src.adapters.tkinter_ui_adapter import TkinterUIAdapter
-from src.adapters.simple_search_adapter import SimpleSearchAdapter
+from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
 from loguru import logger
 
 
@@ -14,7 +14,7 @@ def main():
     clipboard_adapter = PyperclipAdapter()
     storage_adapter = JsonStorageAdapter("clipboard_history.json")
     ui_adapter = TkinterUIAdapter()
-    search_adapter = SimpleSearchAdapter(case_sensitive=False)
+    search_adapter = FuzzySearchAdapter(max_l_dist=1, case_sensitive=False)
 
     clipboard_service = ClipboardService(
         clipboard_port=clipboard_adapter,
