@@ -5,14 +5,14 @@ from src.infrastructure.system_paths import ensure_directories_exist, get_log_fi
 
 def setup_logger():
     ensure_directories_exist()
-    
+
     logger.remove()
 
     if sys.stderr is not None:
         logger.add(
             sys.stderr,
             format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-            level="INFO",
+            level="DEBUG",
         )
 
     log_file_path = get_log_file_path()

@@ -6,23 +6,24 @@ from pathlib import Path
 def main():
     project_root = Path(__file__).parent.parent
     main_script = project_root / "main.py"
-    
+
     if not main_script.exists():
         print(f"Error: {main_script} not found!")
         sys.exit(1)
-    
+
     cmd = [
         "pyinstaller",
-        "--onefile",           # Create a single executable file
-        "--windowed",          # Hide console window (GUI app)
-        "--name", "clip-flow", # Set executable name
-        "--clean",             # Clean PyInstaller cache
-        str(main_script)
+        "--onefile",  # Create a single executable file
+        "--windowed",  # Hide console window (GUI app)
+        "--name",
+        "clip-flow",  # Set executable name
+        "--clean",  # Clean PyInstaller cache
+        str(main_script),
     ]
-    
+
     print("Building clip-flow with PyInstaller...")
     print(f"Command: {' '.join(cmd)}")
-    
+
     try:
         subprocess.run(cmd, check=True, cwd=project_root)
 
@@ -32,7 +33,9 @@ def main():
         print(f"\nBuild failed with exit code {e.returncode}")
         sys.exit(1)
     except FileNotFoundError:
-        print("\nPyInstaller not found. Make sure it's installed in the dev dependencies.")
+        print(
+            "\nPyInstaller not found. Make sure it's installed in the dev dependencies."
+        )
         sys.exit(1)
 
 

@@ -12,11 +12,10 @@ class TkinterUIAdapter(UIPort):
     def __init__(self, settings_port: SettingsPort, theme=None):
         self.settings_port = settings_port
         self.settings_window = None
-        
-        # Use saved theme or default
+
         if theme is None:
             theme = self.settings_port.get_setting("theme", "arc")
-        
+
         self.root = ThemedTk(theme=theme)
         self.root.title("Clip Flow")
         self.root.geometry("400x600")
@@ -50,7 +49,9 @@ class TkinterUIAdapter(UIPort):
                 preview = item.replace("\n", " ").replace("\r", " ")
                 if len(preview) > 50:
                     preview = preview[:47] + "..."
-                item_id = self.history_listbox.insert("", "end", text=str(i+1), values=(preview,))
+                item_id = self.history_listbox.insert(
+                    "", "end", text=str(i + 1), values=(preview,)
+                )
 
             if len(items) > 0 and not self.search_var.get() and not current_selection:
                 first_item = self.history_listbox.get_children()[0]
@@ -59,7 +60,7 @@ class TkinterUIAdapter(UIPort):
             elif current_selection and len(items) > 0:
                 children = self.history_listbox.get_children()
                 if children:
-                    index = min(len(current_selection)-1, len(children) - 1)
+                    index = min(len(current_selection) - 1, len(children) - 1)
                     item_to_select = children[index]
                     self.history_listbox.selection_set(item_to_select)
                     self.history_listbox.focus(item_to_select)
@@ -102,8 +103,8 @@ class TkinterUIAdapter(UIPort):
         if self.root and self._is_hidden:
             self.root.deiconify()
             self.root.lift()
-            self.root.attributes('-topmost', True)
-            self.root.after_idle(lambda: self.root.attributes('-topmost', False))
+            self.root.attributes("-topmost", True)
+            self.root.after_idle(lambda: self.root.attributes("-topmost", False))
             self.search_entry.focus_set()
             self._is_hidden = False
             logger.debug("Window shown")
@@ -155,10 +156,7 @@ class TkinterUIAdapter(UIPort):
         listbox_frame.rowconfigure(0, weight=1)
 
         self.history_listbox = ttk.Treeview(
-            listbox_frame,
-            columns=("content",),
-            show="tree headings",
-            height=15
+            listbox_frame, columns=("content",), show="tree headings", height=15
         )
         self.history_listbox.heading("#0", text="№")
         self.history_listbox.heading("content", text="Content")
@@ -199,7 +197,7 @@ class TkinterUIAdapter(UIPort):
             button_frame, text="Clear History", command=self._clear_history
         )
         clear_btn.pack(side=tk.RIGHT)
-        
+
         settings_btn = ttk.Button(
             button_frame, text="⚙️ Settings", command=self._open_settings
         )
@@ -268,10 +266,10 @@ class TkinterUIAdapter(UIPort):
 
         children = self.history_listbox.get_children()
         index = children.index(selection[0])
-        
+
         if self._copy_callback:
             self._copy_callback(index)
-            
+
         self.hide_window()
         if self._hide_callback:
             self._hide_callback()
@@ -284,7 +282,7 @@ class TkinterUIAdapter(UIPort):
 
         children = self.history_listbox.get_children()
         index = children.index(selection[0])
-        
+
         if index >= len(self._current_items):
             return
 
@@ -311,7 +309,7 @@ class TkinterUIAdapter(UIPort):
             if self._copy_callback:
                 self._copy_callback(index)
             popup.destroy()
-            
+
             self.hide_window()
             if self._hide_callback:
                 self._hide_callback()
@@ -335,14 +333,11 @@ class TkinterUIAdapter(UIPort):
                 self._clear_callback()
 
     def _open_settings(self):
-        # Always create a new settings window to ensure fresh values
         self.settings_window = SettingsWindow(
-            self.root,
-            self.settings_port,
-            self._on_theme_change_from_settings
+            self.root, self.settings_port, self._on_theme_change_from_settings
         )
         self.settings_window.show()
-    
+
     def _on_theme_change_from_settings(self, new_theme: str):
         try:
             self.root.set_theme(new_theme)

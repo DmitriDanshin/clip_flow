@@ -4,7 +4,10 @@ from datetime import datetime
 from loguru import logger
 from src.ports.storage_port import StoragePort
 from src.domain.models import ClipboardHistory, ClipboardItem
-from src.infrastructure.system_paths import ensure_directories_exist, get_database_file_path
+from src.infrastructure.system_paths import (
+    ensure_directories_exist,
+    get_database_file_path,
+)
 
 
 class SqliteStorageAdapter(StoragePort):
@@ -21,19 +24,19 @@ class SqliteStorageAdapter(StoragePort):
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                cursor.execute('''
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS clipboard_history (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         content TEXT NOT NULL,
                         created_at TEXT NOT NULL
                     )
-                ''')
-                cursor.execute('''
+                """)
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS settings (
                         key TEXT PRIMARY KEY,
                         value TEXT NOT NULL
                     )
-                ''')
+                """)
                 conn.commit()
                 logger.trace("Database initialized successfully")
         except sqlite3.Error as e:
@@ -44,21 +47,21 @@ class SqliteStorageAdapter(StoragePort):
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                
+
                 cursor.execute("DELETE FROM clipboard_history")
                 cursor.execute("DELETE FROM settings WHERE key = 'max_items'")
-                
+
                 cursor.execute(
                     "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
-                    ("max_items", str(history.max_items))
+                    ("max_items", str(history.max_items)),
                 )
-                
+
                 for item in history.items:
                     cursor.execute(
                         "INSERT INTO clipboard_history (content, created_at) VALUES (?, ?)",
-                        (item.content, item.created_at.isoformat())
+                        (item.content, item.created_at.isoformat()),
                     )
-                
+
                 conn.commit()
                 logger.trace(f"Saved {len(history.items)} items to database")
         except sqlite3.Error as e:
@@ -74,16 +77,16 @@ class SqliteStorageAdapter(StoragePort):
 
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
-                
+
                 cursor.execute("SELECT value FROM settings WHERE key = 'max_items'")
                 max_items_result = cursor.fetchone()
                 max_items = int(max_items_result[0]) if max_items_result else 1000
-                
+
                 cursor.execute(
                     "SELECT content, created_at FROM clipboard_history ORDER BY created_at DESC"
                 )
                 rows = cursor.fetchall()
-                
+
                 items = []
                 for content, created_at_str in rows:
                     try:
@@ -93,7 +96,7 @@ class SqliteStorageAdapter(StoragePort):
                     except (ValueError, TypeError) as e:
                         logger.warning(f"Skipping invalid history item: {e}")
                         continue
-                
+
                 history = ClipboardHistory(items=items, max_items=max_items)
                 logger.info(f"Loaded {len(items)} items from database.")
                 return history

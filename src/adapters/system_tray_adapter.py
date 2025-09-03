@@ -23,15 +23,15 @@ class SystemTrayAdapter:
 
     def create_icon(self) -> Image.Image:
         # TODO: Use icon
-        image = Image.new('RGB', (64, 64), color=(73, 109, 137))
+        image = Image.new("RGB", (64, 64), color=(73, 109, 137))
         dc = ImageDraw.Draw(image)
-        
+
         dc.rectangle([16, 8, 48, 56], fill=(255, 255, 255), outline=(0, 0, 0))
         dc.rectangle([20, 16, 44, 24], fill=(0, 0, 0))
         dc.rectangle([20, 28, 44, 32], fill=(0, 0, 0))
         dc.rectangle([20, 36, 44, 40], fill=(0, 0, 0))
         dc.rectangle([20, 44, 36, 48], fill=(0, 0, 0))
-        
+
         return image
 
     def setup_global_hotkey(self) -> None:
@@ -42,7 +42,7 @@ class SystemTrayAdapter:
 
         def hotkey_listener():
             try:
-                keyboard.add_hotkey('ctrl+shift+q', hotkey_handler, suppress=True)
+                keyboard.add_hotkey("ctrl+shift+q", hotkey_handler, suppress=True)
                 logger.info("Global hotkey registered: Ctrl+Shift+Q")
                 keyboard.wait()
             except Exception as exception:
@@ -58,31 +58,31 @@ class SystemTrayAdapter:
     def quit_application(self) -> None:
         logger.info("Quitting application from system tray")
         self._running = False
-        
+
         if self._quit_callback:
             self._quit_callback()
-        
+
         if self.icon:
             self.icon.stop()
 
     def start(self) -> None:
         if self._running:
             return
-            
+
         self._running = True
-        
+
         self.setup_global_hotkey()
-        
+
         menu = pystray.Menu(
             pystray.MenuItem("Show", self.show_window, default=True),
-            pystray.MenuItem("Exit", self.quit_application)
+            pystray.MenuItem("Exit", self.quit_application),
         )
-        
+
         icon_image = self.create_icon()
         self.icon = pystray.Icon("Clip Flow", icon_image, menu=menu)
-        
+
         logger.info("Starting system tray")
-        
+
         tray_thread = threading.Thread(target=self._run_tray, daemon=True)
         tray_thread.start()
 
@@ -96,11 +96,11 @@ class SystemTrayAdapter:
     def stop(self) -> None:
         logger.info("Stopping system tray")
         self._running = False
-        
+
         try:
             keyboard.unhook_all()
         except Exception as exception:
             logger.error(f"Error unhooking keyboard: {exception}")
-        
+
         if self.icon:
             self.icon.stop()

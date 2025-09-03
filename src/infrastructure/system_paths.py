@@ -9,7 +9,7 @@ def ensure_directories_exist() -> None:
         Path(user_log_dir("clip_flow", appauthor=False)),
         Path(user_config_dir("clip_flow", appauthor=False)),
     ]
-    
+
     for directory in directories:
         try:
             directory.mkdir(parents=True, exist_ok=True)

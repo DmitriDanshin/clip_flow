@@ -13,7 +13,7 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
 
     def _load_schema(self):
         try:
-            with open(self.schema_path, 'r', encoding='utf-8') as f:
+            with open(self.schema_path, "r", encoding="utf-8") as f:
                 self._schema = json.load(f)
             logger.debug(f"Settings schema loaded from {self.schema_path}")
         except FileNotFoundError:
@@ -47,12 +47,21 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
 
     def get_all_defaults(self) -> Dict[str, Any]:
         defaults = {}
-        for category in self.get_categories():
-            for setting in category.get("settings", []):
+        categories = self.get_categories()
+        logger.debug(f"Processing {len(categories)} categories for defaults")
+
+        for category in categories:
+            category_key = category.get("key", "unknown")
+            settings = category.get("settings", [])
+            logger.debug(f"Category '{category_key}' has {len(settings)} settings")
+
+            for setting in settings:
                 key = setting.get("key")
-                default = setting.get("default")
-                if key and default is not None:
-                    defaults[key] = default
+                if key and "default" in setting:
+                    defaults[key] = setting["default"]
+                    logger.debug(f"Added default for '{key}': {setting['default']}")
+
+        logger.debug(f"Total defaults collected: {defaults}")
         return defaults
 
     def validate_setting_value(self, setting_key: str, value: Any) -> bool:
@@ -61,7 +70,7 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
             return False
 
         setting_type = definition.get("type")
-        
+
         if setting_type == "checkbox":
             return isinstance(value, bool)
         elif setting_type in ["slider", "spinbox"]:
@@ -79,5 +88,5 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
             return value in options
         elif setting_type == "text":
             return isinstance(value, str)
-        
+
         return True

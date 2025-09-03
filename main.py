@@ -6,9 +6,9 @@ from loguru import logger
 def main():
     setup_logger()
     logger.info("Starting Clip Flow")
-    
+
     container = Container()
-    
+
     container.start_application()
 
 

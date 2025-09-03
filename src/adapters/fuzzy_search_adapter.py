@@ -35,5 +35,7 @@ class FuzzySearchAdapter(SearchPort):
 
         fuzzy_content = item.content if self.case_sensitive else content
         fuzzy_query = query if self.case_sensitive else search_query
-        
-        return bool(find_near_matches(fuzzy_query, fuzzy_content, max_l_dist=self.max_l_dist))
+
+        return bool(
+            find_near_matches(fuzzy_query, fuzzy_content, max_l_dist=self.max_l_dist)
+        )
