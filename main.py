@@ -12,7 +12,7 @@ def main():
     logger.info("Preparing to launch Clip Flow.")
 
     clipboard_adapter = PyperclipAdapter()
-    storage_adapter = SqliteStorageAdapter("clipboard_history.db")
+    storage_adapter = SqliteStorageAdapter()
     ui_adapter = TkinterUIAdapter()
     search_adapter = FuzzySearchAdapter(max_l_dist=1, case_sensitive=False)
 

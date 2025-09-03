@@ -4,13 +4,18 @@ from datetime import datetime
 from loguru import logger
 from src.ports.storage_port import StoragePort
 from src.domain.models import ClipboardHistory, ClipboardItem
+from src.infrastructure.system_paths import ensure_directories_exist, get_database_file_path
 
 
 class SqliteStorageAdapter(StoragePort):
-    def __init__(self, db_path: str = "clipboard_history.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            ensure_directories_exist()
+            self.db_path = str(get_database_file_path())
+        else:
+            self.db_path = db_path
         self._init_database()
-        logger.debug(f"SqliteStorageAdapter initialized with database: {db_path}")
+        logger.info(f"Database configured successfully. Database file: {self.db_path}")
 
     def _init_database(self) -> None:
         try:
