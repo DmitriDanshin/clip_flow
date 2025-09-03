@@ -30,3 +30,15 @@ class UIPort(ABC):
     @abstractmethod
     def shutdown(self) -> None:
         """Shutdown the UI."""
+
+    @abstractmethod
+    def show_window(self) -> None:
+        """Show the application window."""
+
+    @abstractmethod
+    def hide_window(self) -> None:
+        """Hide the application window."""
+
+    @abstractmethod
+    def register_hide_callback(self, callback: Callable[[], None]) -> None:
+        """Register callback for when window is hidden."""
