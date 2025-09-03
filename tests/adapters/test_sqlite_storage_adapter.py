@@ -37,7 +37,7 @@ class TestSqliteStorageAdapter:
         return ClipboardHistory(items=sample_items, max_items=100)
 
     def test_init_creates_database_file(self, temp_db_path):
-        adapter = SqliteStorageAdapter(temp_db_path)
+        SqliteStorageAdapter(temp_db_path)
         assert os.path.exists(temp_db_path)
 
     def test_init_creates_tables(self, adapter, temp_db_path):
