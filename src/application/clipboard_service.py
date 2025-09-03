@@ -41,6 +41,17 @@ class ClipboardService:
 
         logger.info("ClipboardService started.")
 
+    def start_monitoring(self) -> None:
+        """Запустить только мониторинг буфера обмена без запуска UI"""
+        self.history = self.storage_port.load_history()
+        logger.info(f"Loaded {len(self.history.items)} items from storage.")
+
+        self.clipboard_port.start_monitoring(self._on_clipboard_change)
+
+        self._update_ui_display()
+
+        logger.info("Clipboard monitoring started.")
+
     def stop(self) -> None:
         self.clipboard_port.stop_monitoring()
         self.ui_port.shutdown()
@@ -57,7 +68,6 @@ class ClipboardService:
         if 0 <= index < len(self._current_filtered_items):
             content = self._current_filtered_items[index]
             self.clipboard_port.set_content(content)
-            self.ui_port.show_message("Item copied to clipboard!")
             logger.info(f"Copied item at index {index} to clipboard.")
         else:
             logger.warning(f"Invalid copy index: {index}")

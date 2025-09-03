@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
-from typing import List, Callable
+from typing import List, Callable, Optional
 from loguru import logger
 from src.ports.ui_port import UIPort
 
@@ -19,8 +19,10 @@ class TkinterUIAdapter(UIPort):
         self._copy_callback: Callable[[int], None] | None = None
         self._search_callback: Callable[[str], None] | None = None
         self._clear_callback: Callable[[], None] | None = None
+        self._hide_callback: Optional[Callable[[], None]] = None
 
         self._current_items: List[str] = []
+        self._is_hidden = False
 
         self._setup_ui()
         self._setup_window_close()
@@ -76,6 +78,25 @@ class TkinterUIAdapter(UIPort):
 
     def register_clear_callback(self, callback: Callable[[], None]) -> None:
         self._clear_callback = callback
+
+    def register_hide_callback(self, callback: Callable[[], None]) -> None:
+        self._hide_callback = callback
+
+    def show_window(self) -> None:
+        if self.root and self._is_hidden:
+            self.root.deiconify()
+            self.root.lift()
+            self.root.attributes('-topmost', True)
+            self.root.after_idle(lambda: self.root.attributes('-topmost', False))
+            self.search_entry.focus_set()
+            self._is_hidden = False
+            logger.debug("Window shown")
+
+    def hide_window(self) -> None:
+        if self.root and not self._is_hidden:
+            self.root.withdraw()
+            self._is_hidden = True
+            logger.debug("Window hidden to system tray")
 
     def shutdown(self) -> None:
         if self.root:
@@ -163,8 +184,10 @@ class TkinterUIAdapter(UIPort):
 
     def _setup_window_close(self):
         def on_closing():
-            logger.info("Window close event detected.")
-            self.root.destroy()
+            logger.info("Window close event detected. Hiding to system tray.")
+            self.hide_window()
+            if self._hide_callback:
+                self._hide_callback()
 
         self.root.protocol("WM_DELETE_WINDOW", on_closing)
 
@@ -219,6 +242,10 @@ class TkinterUIAdapter(UIPort):
 
         if self._copy_callback:
             self._copy_callback(selection[0])
+            
+        self.hide_window()
+        if self._hide_callback:
+            self._hide_callback()
 
     def _view_full_text(self):
         selection = self.history_listbox.curselection()
@@ -254,6 +281,10 @@ class TkinterUIAdapter(UIPort):
             if self._copy_callback:
                 self._copy_callback(index)
             popup.destroy()
+            
+            self.hide_window()
+            if self._hide_callback:
+                self._hide_callback()
 
         copy_popup_btn = ttk.Button(
             btn_frame, text="Copy to Clipboard", command=copy_and_close
