@@ -48,9 +48,16 @@ uvx ruff check .
 - [ ] Add clipboard size limits configuration
 
 ### Features
-- [ ] Add clipboard item favorites
+- [ ] Favorites/pin: pin items to top
+- [ ] Deduplication: merge duplicates; show occurrence count
+- [ ] Multi-select: bulk actions (copy/delete)
+- [ ] Search highlight: highlight matches in list
+- [ ] Ignore list: exclude apps/patterns from history
+- [ ] App exceptions: skip clipboard from sensitive apps
+- [ ] Resize/persist: remember window size/position
 - [ ] Support image clipboard history
 - [ ] Support files clipboard history
+- [ ] Right-click context menu on history items (with Delete) or using the Del key
 
 ### Platform Support
 - [ ] Create installer packages

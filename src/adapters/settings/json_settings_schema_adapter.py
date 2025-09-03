@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from loguru import logger
@@ -11,13 +12,24 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
         self._schema = None
         self._load_schema()
 
+    def _resolve_runtime_path(self) -> Path:
+        if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+            base_dir = Path(sys._MEIPASS)
+        else:
+            base_dir = Path.cwd()
+
+        if self.schema_path.is_absolute():
+            return self.schema_path
+        return base_dir / self.schema_path
+
     def _load_schema(self):
+        path = self._resolve_runtime_path()
         try:
-            with open(self.schema_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 self._schema = json.load(f)
-            logger.debug(f"Settings schema loaded from {self.schema_path}")
+            logger.debug(f"Settings schema loaded from {path}")
         except FileNotFoundError:
-            logger.error(f"Settings schema file not found: {self.schema_path}")
+            logger.error(f"Settings schema file not found: {path}")
             self._schema = {"categories": []}
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in settings schema: {e}")
