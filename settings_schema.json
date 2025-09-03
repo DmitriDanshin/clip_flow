@@ -1,0 +1,70 @@
+{
+  "categories": [
+    {
+      "title": "Appearance",
+      "key": "appearance",
+      "settings": [
+        {
+          "key": "theme",
+          "title": "Theme",
+          "type": "select",
+          "default": "arc",
+          "options": ["arc", "breeze", "equilux", "plastik", "winnative", "xpnative", "clam", "alt", "default", "classic"],
+          "description": "Application theme"
+        }
+      ]
+    },
+    {
+      "title": "Search Settings",
+      "key": "search",
+      "settings": [
+        {
+          "key": "fuzzy_search_max_l_dist",
+          "title": "Max Levenshtein Distance",
+          "type": "slider",
+          "default": 2,
+          "min": 0,
+          "max": 10,
+          "description": "Maximum character distance for fuzzy search matching"
+        },
+        {
+          "key": "fuzzy_search_case_sensitive",
+          "title": "Case Sensitive Search",
+          "type": "checkbox",
+          "default": false,
+          "description": "Enable case-sensitive search"
+        }
+      ]
+    },
+    {
+      "title": "Application",
+      "key": "application",
+      "settings": [
+        {
+          "key": "max_items",
+          "title": "Maximum Clipboard Items",
+          "type": "spinbox",
+          "default": 100,
+          "min": 10,
+          "max": 1000,
+          "step": 10,
+          "description": "Maximum number of clipboard items to store"
+        },
+        {
+          "key": "auto_start",
+          "title": "Auto Start with System",
+          "type": "checkbox",
+          "default": false,
+          "description": "Start application automatically when system boots"
+        },
+        {
+          "key": "hotkey",
+          "title": "Global Hotkey",
+          "type": "text",
+          "default": "Ctrl+Shift+V",
+          "description": "Global hotkey to show clipboard manager"
+        }
+      ]
+    }
+  ]
+}

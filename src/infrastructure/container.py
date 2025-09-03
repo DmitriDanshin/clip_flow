@@ -6,18 +6,30 @@ from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
 from src.adapters.pyperclip_adapter import PyperclipAdapter
 from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
 from src.adapters.system_tray_adapter import SystemTrayAdapter
-from src.adapters.json_settings_adapter import JsonSettingsAdapter
+from src.adapters.settings.json_settings_adapter import JsonSettingsAdapter
+from src.adapters.settings.json_settings_schema_adapter import JsonSettingsSchemaAdapter
 from src.adapters.ui.tkinter_ui_adapter import TkinterUIAdapter
 from src.application.app_service import AppService
 
 
 class Container:
     def __init__(self):
+        self.settings_adapter = JsonSettingsAdapter()
+        self.schema_adapter = JsonSettingsSchemaAdapter()
+        
         self.clipboard_adapter = PyperclipAdapter()
         self.storage_adapter = SqliteStorageAdapter()
-        self.settings_adapter = JsonSettingsAdapter()
         self.ui_adapter = TkinterUIAdapter(self.settings_adapter)
-        self.search_adapter = FuzzySearchAdapter(max_l_dist=3, case_sensitive=False)
+        
+        max_l_dist = self.settings_adapter.get_setting(
+            "fuzzy_search_max_l_dist",
+            self.schema_adapter.get_default_value("fuzzy_search_max_l_dist")
+        )
+        case_sensitive = self.settings_adapter.get_setting(
+            "fuzzy_search_case_sensitive",
+            self.schema_adapter.get_default_value("fuzzy_search_case_sensitive")
+        )
+        self.search_adapter = FuzzySearchAdapter(max_l_dist=max_l_dist, case_sensitive=case_sensitive)
         self.system_tray = SystemTrayAdapter()
         
         self.app_service = AppService(
