@@ -12,6 +12,7 @@ dependencies = [
     "pillow>=11.3.0",
     "keyboard>=0.13.5",
     "pywin32>=308",
+    "ttkthemes>=3.2.2",
 ]
 
 [dependency-groups]
