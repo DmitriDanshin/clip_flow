@@ -39,6 +39,7 @@ uvx ruff check .
 - [ ] Set up semantic release automation
 - [ ] Add pre-commit hooks
 - [ ] Set up test coverage reporting
+- [ ] Add Windows Installer
 
 ### Configuration & Settings
 - [ ] Extract settings to configuration file
