@@ -17,6 +17,17 @@ Run the application:
 uv run python main.py
 ```
 
+### Frontend
+
+- Source HTML lives under `frontend/`.
+- Build/copy to `assets/`:
+  ```bash
+  uv run python scripts/build_frontend.py
+  # or
+  python scripts/build_frontend.py
+  ```
+- The app loads pages from `assets/` only (no inline fallback).
+
 ## Development
 
 ### Linting and Formatting

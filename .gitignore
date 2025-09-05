@@ -163,3 +163,5 @@ cython_debug/
 .idea/
 
 clipboard_history.db
+
+assets
