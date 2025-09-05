@@ -33,8 +33,6 @@ class AppService:
 
         self.clipboard_service.start_monitoring()
 
-        self.ui_port.hide_window()
-
         self.ui_port.run()
 
     def stop(self) -> None:

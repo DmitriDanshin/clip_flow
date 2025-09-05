@@ -8,7 +8,7 @@ from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
 from src.adapters.system_tray_adapter import SystemTrayAdapter
 from src.adapters.settings.json_settings_adapter import JsonSettingsAdapter
 from src.adapters.settings.json_settings_schema_adapter import JsonSettingsSchemaAdapter
-from src.adapters.ui.tkinter_ui_adapter import TkinterUIAdapter
+from src.adapters.ui.pywebview_ui_adapter import PyWebViewUIAdapter
 from src.application.app_service import AppService
 
 
@@ -19,7 +19,7 @@ class Container:
 
         self.clipboard_adapter = PyperclipAdapter()
         self.storage_adapter = SqliteStorageAdapter()
-        self.ui_adapter = TkinterUIAdapter(self.settings_adapter)
+        self.ui_adapter = PyWebViewUIAdapter(self.settings_adapter)
 
         max_l_dist = self.settings_adapter.get_setting(
             "fuzzy_search_max_l_dist",
