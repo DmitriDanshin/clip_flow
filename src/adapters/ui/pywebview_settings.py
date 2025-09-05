@@ -1,32 +1,21 @@
-from __future__ import annotations
-
 import json
-from typing import TYPE_CHECKING, Optional
 
 import webview
 from loguru import logger
+
+from src.adapters.ui.javascript_api import JavaScriptAPI
 from src.ports.settings_port import SettingsPort
-
-if TYPE_CHECKING:
-    from src.adapters.ui.javascript_api import JavaScriptAPI
-
 
 
 class PyWebViewSettings:
-    def __init__(self, settings_port: SettingsPort, js_api: "JavaScriptAPI"):
+    def __init__(self, settings_port: SettingsPort, js_api: JavaScriptAPI):
         self.settings_port = settings_port
-        self.settings_window: Optional[webview.Window] = None
+        self.settings_window:webview.Window | None = None
         self._api = js_api
 
     def show_settings_window(self) -> None:
         if self.settings_window:
-            try:
-                if hasattr(self.settings_window, "show"):
-                    self.settings_window.show()
-                elif hasattr(self.settings_window, "restore"):
-                    self.settings_window.restore()
-            except Exception:
-                pass
+            self.settings_window.show()
             return
 
         logger.info("Creating Settings window")
@@ -39,32 +28,24 @@ class PyWebViewSettings:
             js_api=self._api,
         )
 
-        try:
-            def _on_settings_closing():
-                logger.debug("Settings window closing, resetting reference")
-                self.settings_window = None
-                return True
+        def _on_settings_closing():
+            logger.debug("Settings window closing, resetting reference")
+            self.settings_window = None
+            return True
 
-            self.settings_window.events.closing += _on_settings_closing  # type: ignore[attr-defined]
-        except Exception:
-            pass
+        self.settings_window.events.closing += _on_settings_closing
 
     def get_settings_schema(self) -> str:
-        """Get settings schema as JSON string"""
-        try:
-            schema = self.settings_port.get_schema()
-            logger.debug(f"Loaded settings schema: {schema}")
-            result = json.dumps(schema)
-            logger.debug(f"Returning schema JSON: {result[:200]}...")
-            return result
-        except Exception as e:
-            logger.error(f"Error getting settings schema: {e}")
-            raise
+        schema = self.settings_port.get_schema()
+        logger.debug(f"Loaded settings schema: {schema}")
+        result = json.dumps(schema)
+        logger.debug(f"Returning schema JSON: {result[:200]}...")
+        return result
 
     def get_current_settings(self) -> str:
-        """Get current settings values as JSON string"""
         schema = self.settings_port.get_schema()
         current_settings = {}
+
         for category in schema.get("categories", []):
             for setting in category.get("settings", []):
                 key = setting["key"]
@@ -74,16 +55,15 @@ class PyWebViewSettings:
                 logger.debug(f"Getting setting '{key}': {current_value} (default: {default})")
 
         logger.debug(f"All current settings: {current_settings}")
+
         return json.dumps(current_settings)
 
     def save_settings_from_json(self, settings_json: str) -> None:
-        try:
-            settings = json.loads(settings_json)
-            for key, value in settings.items():
-                self.settings_port.set_setting(key, value)
-            logger.info(f"Settings saved: {list(settings.keys())}")
-        except Exception as e:
-            logger.error(f"Failed to save settings: {e}")
+        settings = json.loads(settings_json)
+        for key, value in settings.items():
+            self.settings_port.set_setting(key, value)
+        logger.info(f"Settings saved: {list(settings.keys())}")
+
 
     def destroy_window(self):
         if self.settings_window:
@@ -91,7 +71,6 @@ class PyWebViewSettings:
 
     @staticmethod
     def _build_settings_html() -> str:
-        """Build HTML for settings window with dynamic schema parsing"""
         return f"""
 <!doctype html>
 <html lang="en">
