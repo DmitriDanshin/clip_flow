@@ -67,3 +67,8 @@ class JsonSettingsAdapter(SettingsPort):
             logger.error(f"Failed to load settings: {exception}")
             self._settings = default_settings.copy()
             logger.info(f"Fallback to {len(default_settings)} default settings from schema")
+
+    def get_schema(self) -> Dict[str, Any]:
+        if self._schema_adapter:
+            return self._schema_adapter.get_schema()
+        return {}

@@ -22,3 +22,7 @@ class SettingsPort(ABC):
     @abstractmethod
     def load_settings(self) -> None:
         """Load settings from storage."""
+
+    @abstractmethod
+    def get_schema(self) -> Dict[str, Any]:
+        """Get the settings schema."""

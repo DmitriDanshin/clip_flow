@@ -26,3 +26,7 @@ class SettingsSchemaPort(ABC):
     @abstractmethod
     def validate_setting_value(self, setting_key: str, value: Any) -> bool:
         pass
+
+    @abstractmethod
+    def get_schema(self) -> Dict[str, Any]:
+        """Get the full settings schema."""

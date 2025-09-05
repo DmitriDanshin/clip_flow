@@ -102,3 +102,6 @@ class JsonSettingsSchemaAdapter(SettingsSchemaPort):
             return isinstance(value, str)
 
         return True
+
+    def get_schema(self) -> Dict[str, Any]:
+        return self._schema if self._schema else {"categories": []}
