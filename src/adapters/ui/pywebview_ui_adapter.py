@@ -201,7 +201,7 @@ class PyWebViewUIAdapter(UIPort):
             self._evaluate_js("window.focusSearch();")
 
     def _build_html(self) -> str:
-        return f"""
+        return """
 <!doctype html>
 <html lang=\"en\">
 <head>
@@ -209,32 +209,32 @@ class PyWebViewUIAdapter(UIPort):
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>Clip Flow</title>
   <style>
-    html, body {{ margin: 0; padding: 0; height: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; }}
-    .wrap {{ display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }}
-    .top {{ padding: 10px; border-bottom: 1px solid #e5e5e5; display: flex; gap: 8px; align-items: center; }}
-    .top input {{ flex: 1; padding: 6px 8px; font-size: 14px; }}
-    .content {{ flex: 1; overflow: auto; padding: 8px; }}
-    table {{ width: 100%; border-collapse: collapse; }}
-    th, td {{ text-align: left; padding: 6px 8px; font-size: 13px; }}
-    tr:hover {{ background: #f7f7f7; }}
-    tr.selected {{ background: #e8f0fe; }}
-    .buttons {{ padding: 8px; border-top: 1px solid #e5e5e5; display: flex; gap: 8px; justify-content: space-between; }}
-    button {{ padding: 6px 10px; font-size: 13px; cursor: pointer; }}
-    .right {{ display: flex; gap: 8px; }}
+    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .wrap { display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+    .top { padding: 10px; border-bottom: 1px solid #e5e5e5; display: flex; gap: 8px; align-items: center; }
+    .top input { flex: 1; padding: 6px 8px; font-size: 14px; }
+    .content { flex: 1; overflow: auto; padding: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; font-size: 13px; }
+    tr:hover { background: #f7f7f7; }
+    tr.selected { background: #e8f0fe; }
+    .buttons { padding: 8px; border-top: 1px solid #e5e5e5; display: flex; gap: 8px; justify-content: space-between; }
+    button { padding: 6px 10px; font-size: 13px; cursor: pointer; }
+    .right { display: flex; gap: 8px; }
     /* modal */
-    .modal {{ position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; }}
-    .modal .card {{ width: 90%; max-width: 600px; background: #fff; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 80vh; }}
-    .modal .head {{ padding: 10px; border-bottom: 1px solid #e5e5e5; font-weight: 600; }}
-    .modal .body {{ padding: 10px; overflow: auto; white-space: pre-wrap; font-family: Consolas, Menlo, monospace; font-size: 12px; }}
-    .modal .foot {{ padding: 8px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 8px; }}
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; }
+    .modal .card { width: 90%; max-width: 600px; background: #fff; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 80vh; }
+    .modal .head { padding: 10px; border-bottom: 1px solid #e5e5e5; font-weight: 600; }
+    .modal .body { padding: 10px; overflow: auto; white-space: pre-wrap; font-family: Consolas, Menlo, monospace; font-size: 12px; }
+    .modal .foot { padding: 8px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 8px; }
   </style>
   <script>
-    let state = {{ items: [], selected: -1 }};
-    function updateHistory(items) {{
+    let state = { items: [], selected: -1 };
+    function updateHistory(items) {
       state.items = items || [];
       const tbody = document.getElementById('tbody');
       tbody.innerHTML = '';
-      state.items.forEach((item, i) => {{
+      state.items.forEach((item, i) => {
         const tr = document.createElement('tr');
         tr.dataset.index = i;
         if (i === state.selected) tr.classList.add('selected');
@@ -246,87 +246,87 @@ class PyWebViewUIAdapter(UIPort):
         tr.addEventListener('click', () => selectRow(i));
         tr.addEventListener('dblclick', () => onCopy());
         tbody.appendChild(tr);
-      }});
+      });
       // auto-select first if nothing selected and there are items
-      if (state.items.length && state.selected === -1) {{
+      if (state.items.length && state.selected === -1) {
         selectRow(0);
-      }}
-    }}
+      }
+    }
 
-    function selectRow(i) {{
+    function selectRow(i) {
       state.selected = i;
       const rows = [...document.querySelectorAll('#tbody tr')];
       rows.forEach(r => r.classList.remove('selected'));
       const row = rows[i]; if (row) row.classList.add('selected');
-    }}
+    }
 
-    function onSearch(e) {{
+    function onSearch(e) {
       const val = typeof e === 'string' ? e : e.target.value;
       if (window.pywebview && pywebview.api) pywebview.api.on_search(val);
-    }}
+    }
 
-    function onCopy() {{
-      if (state.selected < 0) {{ showMessage({{message: 'Please select an item to copy.', type: 'warning'}}); return; }}
+    function onCopy() {
+      if (state.selected < 0) { showMessage({message: 'Please select an item to copy.', type: 'warning'}); return; }
       if (window.pywebview && pywebview.api) pywebview.api.on_copy(state.selected);
-    }}
+    }
 
-    function onView() {{
-      if (state.selected < 0) {{ showMessage({{message: 'Please select an item to view.', type: 'warning'}}); return; }}
+    function onView() {
+      if (state.selected < 0) { showMessage({message: 'Please select an item to view.', type: 'warning'}); return; }
       const text = state.items[state.selected] || '';
       document.getElementById('modal-text').textContent = text;
       document.getElementById('modal').style.display = 'flex';
-    }}
+    }
 
-    function onClear() {{
+    function onClear() {
       if (!confirm('Are you sure you want to clear all clipboard history?')) return;
       if (window.pywebview && pywebview.api) pywebview.api.on_clear();
-    }}
+    }
 
-    function onCloseModal() {{ document.getElementById('modal').style.display = 'none'; }}
+    function onCloseModal() { document.getElementById('modal').style.display = 'none'; }
 
-    function copyFromModal() {{
+    function copyFromModal() {
       if (window.pywebview && pywebview.api) pywebview.api.on_copy(state.selected);
       onCloseModal();
-    }}
+    }
 
-    function showMessage(payload) {{
+    function showMessage(payload) {
       const msg = (payload && payload.message) ? payload.message : '';
       alert(msg);
-    }}
+    }
 
-    function focusSearch() {{
+    function focusSearch() {
       const el = document.getElementById('search'); if (el) el.focus();
-    }}
+    }
 
-    function checkPyWebViewAPI() {{
-      if (window.pywebview && pywebview.api && pywebview.api.on_ready) {{
+    function checkPyWebViewAPI() {
+      if (window.pywebview && pywebview.api && pywebview.api.on_ready) {
         pywebview.api.on_ready();
         return true;
-      }}
+      }
       return false;
-    }}
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {{
+    window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('search').addEventListener('input', onSearch);
       document.getElementById('copy').addEventListener('click', onCopy);
       document.getElementById('view').addEventListener('click', onView);
       document.getElementById('clear').addEventListener('click', onClear);
-      document.getElementById('settings').addEventListener('click', () => {{ if (window.pywebview && pywebview.api) pywebview.api.show_settings(); }});
+      document.getElementById('settings').addEventListener('click', () => { if (window.pywebview && pywebview.api) pywebview.api.show_settings(); });
       document.getElementById('close-modal').addEventListener('click', onCloseModal);
       document.getElementById('copy-modal').addEventListener('click', copyFromModal);
       
       focusSearch();
       
       // Try to call API immediately
-      if (!checkPyWebViewAPI()) {{
+      if (!checkPyWebViewAPI()) {
         // If API not available, retry after a short delay
-        setTimeout(() => {{
-          if (!checkPyWebViewAPI()) {{
+        setTimeout(() => {
+          if (!checkPyWebViewAPI()) {
             setTimeout(checkPyWebViewAPI, 500);
-          }}
-        }}, 100);
-      }}
-    }});
+          }
+        }, 100);
+      }
+    });
   </script>
   </head>
   <body>

@@ -71,7 +71,7 @@ class PyWebViewSettings:
 
     @staticmethod
     def _build_settings_html() -> str:
-        return f"""
+        return """
 <!doctype html>
 <html lang="en">
 <head>
@@ -79,31 +79,31 @@ class PyWebViewSettings:
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Clip Flow - Settings</title>
   <style>
-    html, body {{ margin: 0; padding: 0; height: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; }}
-    .container {{ padding: 20px; max-width: 600px; margin: 0 auto; height: calc(100% - 40px); display: flex; flex-direction: column; }}
-    h1 {{ margin: 0 0 20px 0; font-size: 24px; color: #333; }}
+    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; height: calc(100% - 40px); display: flex; flex-direction: column; }
+    h1 { margin: 0 0 20px 0; font-size: 24px; color: #333; }
     
-    .categories {{ flex: 1; overflow-y: auto; }}
-    .category {{ margin-bottom: 30px; }}
-    .category-title {{ font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; }}
+    .categories { flex: 1; overflow-y: auto; }
+    .category { margin-bottom: 30px; }
+    .category-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
     
-    .setting-group {{ margin-bottom: 20px; }}
-    .setting-label {{ display: block; margin-bottom: 8px; font-weight: 500; color: #555; }}
-    .setting-description {{ font-size: 12px; color: #777; margin-top: 4px; }}
+    .setting-group { margin-bottom: 20px; }
+    .setting-label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
+    .setting-description { font-size: 12px; color: #777; margin-top: 4px; }
     
-    input, select, textarea {{ padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }}
-    input[type="checkbox"] {{ width: auto; margin-right: 8px; }}
-    input[type="range"] {{ width: 100%; }}
+    input, select, textarea { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
+    input[type="checkbox"] { width: auto; margin-right: 8px; }
+    input[type="range"] { width: 100%; }
     
-    .range-container {{ display: flex; align-items: center; gap: 10px; }}
-    .range-value {{ min-width: 40px; text-align: center; font-weight: 500; }}
+    .range-container { display: flex; align-items: center; gap: 10px; }
+    .range-value { min-width: 40px; text-align: center; font-weight: 500; }
     
-    .buttons {{ margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #ddd; padding-top: 20px; }}
-    button {{ padding: 8px 16px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }}
-    .btn-primary {{ background: #007bff; color: white; }}
-    .btn-secondary {{ background: #6c757d; color: white; }}
-    .btn-primary:hover {{ background: #0056b3; }}
-    .btn-secondary:hover {{ background: #545b62; }}
+    .buttons { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #ddd; padding-top: 20px; }
+    button { padding: 8px 16px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-secondary:hover { background: #545b62; }
   </style>
 </head>
 <body>
@@ -124,7 +124,7 @@ class PyWebViewSettings:
     let settingsSchema = null;
     let currentSettings = null;
     
-    function createSettingElement(setting, currentValue) {{
+    function createSettingElement(setting, currentValue) {
       const group = document.createElement('div');
       group.className = 'setting-group';
       
@@ -136,25 +136,25 @@ class PyWebViewSettings:
       
       let input;
       
-      if (setting.type === 'select') {{
+      if (setting.type === 'select') {
         input = document.createElement('select');
         input.id = setting.key;
         input.name = setting.key;
         
-        setting.options.forEach(option => {{
+        setting.options.forEach(option => {
           const opt = document.createElement('option');
           opt.value = option;
           opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
           if (option === currentValue) opt.selected = true;
           input.appendChild(opt);
-        }});
-      }} else if (setting.type === 'checkbox') {{
+        });
+      } else if (setting.type === 'checkbox') {
         input = document.createElement('input');
         input.type = 'checkbox';
         input.id = setting.key;
         input.name = setting.key;
         input.checked = currentValue;
-      }} else if (setting.type === 'slider') {{
+      } else if (setting.type === 'slider') {
         const container = document.createElement('div');
         container.className = 'range-container';
         
@@ -170,14 +170,14 @@ class PyWebViewSettings:
         valueDisplay.className = 'range-value';
         valueDisplay.textContent = currentValue;
         
-        input.addEventListener('input', () => {{
+        input.addEventListener('input', () => {
           valueDisplay.textContent = input.value;
-        }});
+        });
         
         container.appendChild(input);
         container.appendChild(valueDisplay);
         group.appendChild(container);
-      }} else if (setting.type === 'spinbox') {{
+      } else if (setting.type === 'spinbox') {
         input = document.createElement('input');
         input.type = 'number';
         input.id = setting.key;
@@ -186,34 +186,34 @@ class PyWebViewSettings:
         input.max = setting.max || 1000;
         input.step = setting.step || 1;
         input.value = currentValue;
-      }} else {{
+      } else {
         // text type
         input = document.createElement('input');
         input.type = 'text';
         input.id = setting.key;
         input.name = setting.key;
         input.value = currentValue || '';
-      }}
+      }
       
-      if (input && setting.type !== 'slider') {{
+      if (input && setting.type !== 'slider') {
         group.appendChild(input);
-      }}
+      }
       
-      if (setting.description) {{
+      if (setting.description) {
         const desc = document.createElement('div');
         desc.className = 'setting-description';
         desc.textContent = setting.description;
         group.appendChild(desc);
-      }}
+      }
       
       return group;
-    }}
+    }
     
-    function renderSettings(schema, settings) {{
+    function renderSettings(schema, settings) {
       const container = document.getElementById('settings-container');
       container.innerHTML = '';
       
-      schema.categories.forEach(category => {{
+      schema.categories.forEach(category => {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
         
@@ -222,42 +222,42 @@ class PyWebViewSettings:
         categoryTitle.textContent = category.title;
         categoryDiv.appendChild(categoryTitle);
         
-        category.settings.forEach(setting => {{
+        category.settings.forEach(setting => {
           const currentValue = settings[setting.key] !== undefined ? settings[setting.key] : setting.default;
           const settingElement = createSettingElement(setting, currentValue);
           categoryDiv.appendChild(settingElement);
-        }});
+        });
         
         container.appendChild(categoryDiv);
-      }});
-    }}
+      });
+    }
     
-    function collectSettings() {{
+    function collectSettings() {
       const formData = new FormData();
-      const settings = {{}};
+      const settings = {};
       
-      settingsSchema.categories.forEach(category => {{
-        category.settings.forEach(setting => {{
+      settingsSchema.categories.forEach(category => {
+        category.settings.forEach(setting => {
           const element = document.getElementById(setting.key);
-          if (element) {{
-            if (setting.type === 'checkbox') {{
+          if (element) {
+            if (setting.type === 'checkbox') {
               settings[setting.key] = element.checked;
-            }} else if (setting.type === 'slider' || setting.type === 'spinbox') {{
+            } else if (setting.type === 'slider' || setting.type === 'spinbox') {
               settings[setting.key] = parseInt(element.value);
-            }} else {{
+            } else {
               settings[setting.key] = element.value;
-            }}
-          }}
-        }});
-      }});
+            }
+          }
+        });
+      });
       
       return settings;
-    }}
+    }
     
-    async function loadSettings() {{
-      try {{
+    async function loadSettings() {
+      try {
         console.log('Starting to load settings...');
-        if (window.pywebview && pywebview.api) {{
+        if (window.pywebview && pywebview.api) {
           console.log('pywebview.api is available');
           
           const schemaJson = await pywebview.api.get_settings_schema();
@@ -274,55 +274,55 @@ class PyWebViewSettings:
           
           renderSettings(settingsSchema, currentSettings);
           console.log('Settings rendered');
-        }} else {{
+        } else {
           console.error('pywebview.api is not available');
-        }}
-      }} catch (error) {{
+        }
+      } catch (error) {
         console.error('Failed to load settings:', error);
         // Show error message in the UI
         const container = document.getElementById('settings-container');
         container.innerHTML = '<div style="color: red; padding: 20px;">Failed to load settings: ' + error.message + '</div>';
-      }}
-    }}
+      }
+    }
     
-    window.addEventListener('DOMContentLoaded', () => {{
-      document.getElementById('cancel-btn').addEventListener('click', () => {{
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('cancel-btn').addEventListener('click', () => {
         window.close();
-      }});
+      });
       
-      document.getElementById('save-btn').addEventListener('click', async () => {{
-        try {{
+      document.getElementById('save-btn').addEventListener('click', async () => {
+        try {
           const settings = collectSettings();
-          if (window.pywebview && pywebview.api) {{
+          if (window.pywebview && pywebview.api) {
             await pywebview.api.save_settings(JSON.stringify(settings));
             alert('Settings saved successfully!');
             window.close();
-          }}
-        }} catch (error) {{
+          }
+        } catch (error) {
           console.error('Failed to save settings:', error);
           alert('Failed to save settings. Please try again.');
-        }}
-      }});
+        }
+      });
       
       // Load settings when page is ready - but wait for API
-      function tryLoadSettings() {{
-        if (window.pywebview && pywebview.api) {{
+      function tryLoadSettings() {
+        if (window.pywebview && pywebview.api) {
           loadSettings();
-        }} else {{
+        } else {
           console.log('API not ready, retrying in 100ms...');
-          setTimeout(() => {{
-            if (window.pywebview && pywebview.api) {{
+          setTimeout(() => {
+            if (window.pywebview && pywebview.api) {
               loadSettings();
-            }} else {{
+            } else {
               console.log('API still not ready, retrying in 500ms...');
               setTimeout(tryLoadSettings, 500);
-            }}
-          }}, 100);
-        }}
-      }}
+            }
+          }, 100);
+        }
+      }
       
       tryLoadSettings();
-    }});
+    });
   </script>
 </body>
 </html>
