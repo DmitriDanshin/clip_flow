@@ -1,10 +1,12 @@
-import pytest
 from datetime import datetime
 from unittest.mock import Mock
+
+import pytest
+
 from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
+from src.application.settings_service import SettingsService
 from src.domain.clipboard import ClipboardItem
 from src.domain.settings.app_settings import create_app_settings
-from src.application.settings_service import SettingsService
 
 
 class TestFuzzySearchAdapter:
@@ -14,7 +16,7 @@ class TestFuzzySearchAdapter:
         mock_repository = Mock()
         mock_repository.exists.return_value = False
         return SettingsService(repository=mock_repository, settings=settings)
-    
+
     @pytest.fixture
     def adapter(self, mock_settings_service):
         return FuzzySearchAdapter(settings_service=mock_settings_service)
@@ -99,7 +101,7 @@ class TestFuzzySearchAdapter:
         # Update the settings
         mock_settings_service.update_setting("fuzzy_search.max_l_dist", 2)
         mock_settings_service.update_setting("fuzzy_search.case_sensitive", True)
-        
+
         adapter = FuzzySearchAdapter(settings_service=mock_settings_service)
         assert adapter.max_l_dist == 2
         assert adapter.case_sensitive is True

@@ -1,9 +1,10 @@
-import pystray
-from PIL import Image, ImageDraw
-import keyboard
 import threading
 from typing import Callable, Optional
+
+import keyboard
 from loguru import logger
+from PIL import Image, ImageDraw
+import pystray
 
 
 class SystemTrayAdapter:

@@ -42,19 +42,33 @@ Check code style:
 uvx ruff check .
 ```
 
+### Pre-commit Hooks
+
+Pre-commit hooks are set up to automatically format and lint code before commits.
+
+Install hooks (one-time setup):
+```bash
+uv run pre-commit install
+```
+
+Run hooks manually on all files:
+```bash
+uv run pre-commit run --all-files
+```
+
 ## TODO
 
 ### DevOps & Quality
 - [ ] Set up comprehensive linting configuration
 - [ ] Configure CI/CD pipeline
 - [ ] Set up semantic release automation
-- [ ] Add pre-commit hooks
+- [x] Add pre-commit hooks
 - [ ] Set up test coverage reporting
 - [ ] Add Windows Installer
 
 ### Configuration & Settings
-- [ ] Extract settings to configuration file
-- [ ] Add configurable settings interface
+- [x] Extract settings to configuration file
+- [x] Add configurable settings interface
 - [ ] Add hotkey customization
 - [ ] Add clipboard size limits configuration
 

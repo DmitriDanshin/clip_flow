@@ -1,10 +1,12 @@
 from typing import List
+
 from loguru import logger
+
 from src.domain.clipboard import ClipboardHistory
 from src.ports.clipboard_port import ClipboardPort
+from src.ports.search_port import SearchPort
 from src.ports.storage_port import StoragePort
 from src.ports.ui_port import UIPort
-from src.ports.search_port import SearchPort
 
 
 class ClipboardService:
@@ -89,14 +91,14 @@ class ClipboardService:
     def _on_delete_item(self, index: int) -> None:
         if 0 <= index < len(self._current_filtered_items):
             content_to_delete = self._current_filtered_items[index]
-            
+
             # Find the actual index in the full history by content
             actual_index = -1
             for i, item in enumerate(self.history.items):
                 if item.content == content_to_delete:
                     actual_index = i
                     break
-            
+
             if actual_index != -1 and self.history.remove_item_by_index(actual_index):
                 self.storage_port.save_history(self.history)
                 self._update_ui_display()

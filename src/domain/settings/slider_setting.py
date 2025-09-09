@@ -13,7 +13,7 @@ class SliderSetting(SettingDefinition):
     def validate_value(self, value: Any) -> bool:
         if not isinstance(value, (int, float)):
             return False
-        
+
         return self.metadata.min_value <= value <= self.metadata.max_value
 
     def serialize_value(self, value: Any) -> float:

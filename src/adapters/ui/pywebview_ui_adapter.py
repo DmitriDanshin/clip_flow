@@ -1,14 +1,13 @@
-
 import json
-from typing import Callable, Dict, Any
+from typing import Any, Callable, Dict
 
 from loguru import logger
-
 import webview
-from src.ports.ui_port import UIPort
+
 from src.adapters.ui.javascript_api import JavaScriptAPI
-from src.utils.assets import asset_uri as get_asset_uri
 from src.ports.settings_port import SettingsServicePort
+from src.ports.ui_port import UIPort
+from src.utils.assets import asset_uri as get_asset_uri
 
 
 class PyWebViewUIAdapter(UIPort):
@@ -35,7 +34,7 @@ class PyWebViewUIAdapter(UIPort):
         self._request_focus = False
 
         logger.debug("PyWebViewUIAdapter initialized.")
-        
+
     def set_settings_service(self, settings_service: SettingsServicePort) -> None:
         self._settings_service = settings_service
 
@@ -63,9 +62,11 @@ class PyWebViewUIAdapter(UIPort):
     def run(self) -> None:
         logger.info("Starting PyWebView UI.")
 
-        uri = get_asset_uri('index.html')
+        uri = get_asset_uri("index.html")
         if not uri:
-            raise RuntimeError("assets/index.html not found. Build frontend via 'python scripts/build_frontend.py'.")
+            raise RuntimeError(
+                "assets/index.html not found. Build frontend via 'python scripts/build_frontend.py'."
+            )
 
         logger.debug(f"Loading UI from assets: {uri}")
         self.window = webview.create_window(
@@ -81,7 +82,7 @@ class PyWebViewUIAdapter(UIPort):
         )
 
         self.window.events.closing += self._on_window_closing
-        
+
         webview.start(self._after_start, debug=False)
 
     def register_copy_callback(self, callback: Callable[[int], None]) -> None:
@@ -121,7 +122,6 @@ class PyWebViewUIAdapter(UIPort):
     def handle_js_ready(self) -> None:
         self._mark_js_ready()
 
-
     def show_window(self) -> None:
         if not self.window:
             return
@@ -153,19 +153,24 @@ class PyWebViewUIAdapter(UIPort):
         if self.window:
             self.window.destroy()
 
-
     def _push_history_to_webview(self) -> None:
         if not self.window:
             return
 
         data = json.dumps(self._current_items)
         logger.debug(f"Pushing {len(self._current_items)} items to WebView")
-        exists = self._evaluate_js("typeof updateHistory === 'function' ? 'ok' : 'missing'")
+        exists = self._evaluate_js(
+            "typeof updateHistory === 'function' ? 'ok' : 'missing'"
+        )
 
-        if exists != 'ok':
-            exists_win = self._evaluate_js("typeof window.updateHistory === 'function' ? 'ok' : 'missing'")
-            logger.debug(f"updateHistory availability: global={exists}, window={exists_win}")
-            if exists_win == 'ok':
+        if exists != "ok":
+            exists_win = self._evaluate_js(
+                "typeof window.updateHistory === 'function' ? 'ok' : 'missing'"
+            )
+            logger.debug(
+                f"updateHistory availability: global={exists}, window={exists_win}"
+            )
+            if exists_win == "ok":
                 self._evaluate_js(f"window.updateHistory({data});")
                 return
 
@@ -196,10 +201,14 @@ class PyWebViewUIAdapter(UIPort):
         self._js_ready = True
 
         logger.debug("JS context is ready")
-        logger.debug(f"Pending history items: {len(self._pending_history) if self._pending_history else 0}")
+        logger.debug(
+            f"Pending history items: {len(self._pending_history) if self._pending_history else 0}"
+        )
 
         if self._pending_history is not None:
-            logger.debug(f"Processing pending history with {len(self._pending_history)} items")
+            logger.debug(
+                f"Processing pending history with {len(self._pending_history)} items"
+            )
             self._current_items = self._pending_history
             self._pending_history = None
             self._push_history_to_webview()
@@ -214,17 +223,17 @@ class PyWebViewUIAdapter(UIPort):
         if not self._settings_service:
             logger.warning("Settings service not available")
             return {}
-        
+
         settings = self._settings_service.get_settings()
         metadata = {}
-        
+
         for group_name, group in settings.get_groups().items():
             metadata[group_name] = {
                 "display_name": group.display_name,
                 "description": group.description,
-                "settings": {}
+                "settings": {},
             }
-            
+
             for setting_key, setting_def in group.settings.items():
                 meta = setting_def.metadata
                 metadata[group_name]["settings"][setting_key] = {
@@ -235,9 +244,9 @@ class PyWebViewUIAdapter(UIPort):
                     "default_value": meta.default_value,
                     "min_value": meta.min_value,
                     "max_value": meta.max_value,
-                    "step": meta.step
+                    "step": meta.step,
                 }
-        
+
         logger.debug("Settings metadata provided to frontend")
         return metadata
 
@@ -245,7 +254,7 @@ class PyWebViewUIAdapter(UIPort):
         if not self._settings_service:
             logger.warning("Settings service not available")
             return {}
-        
+
         values = self._settings_service.get_settings().get_all_values()
         logger.debug(f"Settings values provided to frontend: {len(values)} settings")
         return values
@@ -254,19 +263,21 @@ class PyWebViewUIAdapter(UIPort):
         if not self._settings_service:
             logger.warning("Settings service not available")
             return False
-        
+
         success = self._settings_service.update_setting(key, value)
         if success:
             logger.debug(f"Setting '{key}' updated via frontend to '{value}'")
         else:
-            logger.warning(f"Failed to update setting '{key}' to '{value}' via frontend")
+            logger.warning(
+                f"Failed to update setting '{key}' to '{value}' via frontend"
+            )
         return success
 
     def handle_js_save_settings(self) -> bool:
         if not self._settings_service:
             logger.warning("Settings service not available")
             return False
-        
+
         success = self._settings_service.save_settings()
         if success:
             logger.debug("Settings saved via frontend")

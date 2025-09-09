@@ -1,7 +1,7 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-from .settings_group import SettingsGroup
 from .setting_definition import SettingDefinition
+from .settings_group import SettingsGroup
 
 
 class Settings:
@@ -22,10 +22,10 @@ class Settings:
         setting_def = self._find_setting_definition(key)
         if not setting_def:
             return False
-        
+
         if not setting_def.validate_value(value):
             return False
-        
+
         self._values[key] = value
         return True
 

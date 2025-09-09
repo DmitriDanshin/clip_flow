@@ -21,8 +21,7 @@ class Container:
         self.settings_repository = JsonSettingsAdapter()
         app_settings = create_app_settings()
         self.settings_service = SettingsService(
-            repository=self.settings_repository,
-            settings=app_settings
+            repository=self.settings_repository, settings=app_settings
         )
 
         self.ui_adapter = PyWebViewUIAdapter()

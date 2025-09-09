@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Callable
+from typing import Callable, List
 
 
 class UIPort(ABC):

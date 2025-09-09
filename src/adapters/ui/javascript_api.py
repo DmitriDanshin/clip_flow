@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Any
-
+from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:
     from src.adapters.ui.pywebview_ui_adapter import PyWebViewUIAdapter
@@ -37,4 +36,3 @@ class JavaScriptAPI:
 
     def save_settings(self) -> bool:
         return self._ui.handle_js_save_settings()
-

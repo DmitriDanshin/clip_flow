@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import List
 from datetime import datetime
+from typing import List
 
 from src.domain.clipboard.clipboard_item import ClipboardItem
 

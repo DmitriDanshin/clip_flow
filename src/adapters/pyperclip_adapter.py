@@ -1,8 +1,10 @@
-import pyperclip
-import time
 import threading
+import time
 from typing import Callable
+
 from loguru import logger
+import pyperclip
+
 from src.ports.clipboard_port import ClipboardPort
 
 

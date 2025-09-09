@@ -1,9 +1,10 @@
 from loguru import logger
+
+from src.application.clipboard_service import ClipboardService
 from src.ports.clipboard_port import ClipboardPort
+from src.ports.search_port import SearchPort
 from src.ports.storage_port import StoragePort
 from src.ports.ui_port import UIPort
-from src.ports.search_port import SearchPort
-from src.application.clipboard_service import ClipboardService
 
 
 class AppService:

@@ -3,7 +3,7 @@ from enum import Enum
 
 class SettingType(Enum):
     INTEGER = "integer"
-    FLOAT = "float" 
+    FLOAT = "float"
     BOOLEAN = "boolean"
     STRING = "string"
     SLIDER = "slider"

@@ -1,8 +1,9 @@
 import fuzzysearch
 from loguru import logger
+
+from src.domain.clipboard import ClipboardItem
 from src.ports.search_port import SearchPort
 from src.ports.settings_port import SettingsServicePort
-from src.domain.clipboard import ClipboardItem
 
 
 class FuzzySearchAdapter(SearchPort):
@@ -12,23 +13,33 @@ class FuzzySearchAdapter(SearchPort):
 
     @property
     def max_substitutions(self) -> int:
-        return self._settings_service.get_settings().get_value("fuzzy_search.max_substitutions")
+        return self._settings_service.get_settings().get_value(
+            "fuzzy_search.max_substitutions"
+        )
 
     @property
     def max_insertions(self) -> int:
-        return self._settings_service.get_settings().get_value("fuzzy_search.max_insertions")
+        return self._settings_service.get_settings().get_value(
+            "fuzzy_search.max_insertions"
+        )
 
     @property
     def max_deletions(self) -> int:
-        return self._settings_service.get_settings().get_value("fuzzy_search.max_deletions")
+        return self._settings_service.get_settings().get_value(
+            "fuzzy_search.max_deletions"
+        )
 
     @property
     def max_l_dist(self) -> int:
-        return self._settings_service.get_settings().get_value("fuzzy_search.max_l_dist")
+        return self._settings_service.get_settings().get_value(
+            "fuzzy_search.max_l_dist"
+        )
 
     @property
     def case_sensitive(self) -> bool:
-        return self._settings_service.get_settings().get_value("fuzzy_search.case_sensitive")
+        return self._settings_service.get_settings().get_value(
+            "fuzzy_search.case_sensitive"
+        )
 
     def search(self, items: list[ClipboardItem], query: str) -> list[ClipboardItem]:
         if not query:

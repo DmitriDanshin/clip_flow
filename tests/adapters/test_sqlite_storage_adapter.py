@@ -1,10 +1,12 @@
-import pytest
-import sqlite3
-import os
-import tempfile
 from datetime import datetime
+import os
+import sqlite3
+import tempfile
+
+import pytest
+
 from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
-from src.domain.clipboard import ClipboardItem, ClipboardHistory
+from src.domain.clipboard import ClipboardHistory, ClipboardItem
 
 
 class TestSqliteStorageAdapter:
@@ -74,7 +76,7 @@ class TestSqliteStorageAdapter:
         # This test is no longer applicable since settings are not stored in the database
         # The max_items is now handled by the domain model and doesn't persist in the database
         adapter.save_history(sample_history)
-        
+
         # Just verify that the history items were saved
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.cursor()
@@ -184,6 +186,8 @@ class TestSqliteStorageAdapter:
             assert "created_at" in clipboard_column_names
 
             # Settings table is no longer created by this adapter
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='settings'")
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='settings'"
+            )
             settings_table_exists = cursor.fetchone() is None
             assert settings_table_exists  # Assert that settings table does NOT exist

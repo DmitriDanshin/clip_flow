@@ -1,7 +1,7 @@
 import os
+from pathlib import Path
 import subprocess
 import sys
-from pathlib import Path
 
 
 def main():
@@ -22,7 +22,6 @@ def main():
         str(main_script),
     ]
 
-    
     assets_dir = project_root / "assets"
     if assets_dir.exists():
         cmd.extend(["--add-data", f"{assets_dir}{os.pathsep}assets"])

@@ -1,4 +1,5 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
 from loguru import logger
 
 from src.domain.settings import Settings
@@ -18,7 +19,9 @@ class SettingsService(SettingsServicePort):
                 self._settings.deserialize(data)
                 logger.debug("Settings loaded from repository")
             else:
-                logger.warning("Failed to load settings from repository, using defaults")
+                logger.warning(
+                    "Failed to load settings from repository, using defaults"
+                )
         else:
             logger.debug("Settings file does not exist, using default values")
 

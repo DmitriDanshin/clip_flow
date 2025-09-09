@@ -1,10 +1,10 @@
 import json
-from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from loguru import logger
 
-from src.ports.settings_port import SettingsRepositoryPort
 from src.infrastructure.system_paths import get_config_dir
+from src.ports.settings_port import SettingsRepositoryPort
 
 
 class JsonSettingsAdapter(SettingsRepositoryPort):
@@ -25,7 +25,7 @@ class JsonSettingsAdapter(SettingsRepositoryPort):
             return None
 
         try:
-            with open(self._settings_file, 'r', encoding='utf-8') as f:
+            with open(self._settings_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             logger.debug(f"Settings loaded from {self._settings_file}")
             return data
@@ -35,7 +35,7 @@ class JsonSettingsAdapter(SettingsRepositoryPort):
 
     def save(self, settings_data: Dict[str, Any]) -> bool:
         try:
-            with open(self._settings_file, 'w', encoding='utf-8') as f:
+            with open(self._settings_file, "w", encoding="utf-8") as f:
                 json.dump(settings_data, f, indent=2, ensure_ascii=False)
             logger.debug(f"Settings saved to {self._settings_file}")
             return True

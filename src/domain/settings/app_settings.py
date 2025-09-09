@@ -1,11 +1,9 @@
-from typing import Dict
-
+from .boolean_setting import BooleanSetting
+from .integer_setting import IntegerSetting
 from .setting_metadata import SettingMetadata
 from .setting_type import SettingType
-from .integer_setting import IntegerSetting
-from .boolean_setting import BooleanSetting
-from .settings_group import SettingsGroup
 from .settings import Settings
+from .settings_group import SettingsGroup
 
 
 def create_app_settings() -> Settings:
@@ -17,7 +15,7 @@ def create_app_settings() -> Settings:
             setting_type=SettingType.INTEGER,
             default_value=None,
             min_value=0,
-            max_value=10
+            max_value=10,
         )
     )
 
@@ -29,7 +27,7 @@ def create_app_settings() -> Settings:
             setting_type=SettingType.INTEGER,
             default_value=None,
             min_value=0,
-            max_value=10
+            max_value=10,
         )
     )
 
@@ -41,7 +39,7 @@ def create_app_settings() -> Settings:
             setting_type=SettingType.INTEGER,
             default_value=None,
             min_value=0,
-            max_value=10
+            max_value=10,
         )
     )
 
@@ -53,7 +51,7 @@ def create_app_settings() -> Settings:
             setting_type=SettingType.INTEGER,
             default_value=1,
             min_value=0,
-            max_value=10
+            max_value=10,
         )
     )
 
@@ -63,7 +61,7 @@ def create_app_settings() -> Settings:
             display_name="Case Sensitive",
             description="Whether fuzzy search should be case sensitive or not.",
             setting_type=SettingType.BOOLEAN,
-            default_value=False
+            default_value=False,
         )
     )
 
@@ -77,7 +75,7 @@ def create_app_settings() -> Settings:
             "fuzzy_search.max_deletions": max_deletions_setting,
             "fuzzy_search.max_l_dist": max_l_dist_setting,
             "fuzzy_search.case_sensitive": case_sensitive_setting,
-        }
+        },
     )
 
     all_groups = {

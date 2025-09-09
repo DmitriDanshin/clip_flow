@@ -1,6 +1,7 @@
 from pathlib import Path
+
 from loguru import logger
-from platformdirs import user_data_dir, user_log_dir, user_config_dir
+from platformdirs import user_config_dir, user_data_dir, user_log_dir
 
 
 def ensure_directories_exist() -> None:

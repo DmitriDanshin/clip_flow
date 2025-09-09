@@ -1,6 +1,7 @@
-from src.infrastructure.logger import setup_logger
-from src.infrastructure.container import Container
 from loguru import logger
+
+from src.infrastructure.container import Container
+from src.infrastructure.logger import setup_logger
 
 
 def main():
