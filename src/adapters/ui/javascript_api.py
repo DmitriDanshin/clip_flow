@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Any
 
 
 if TYPE_CHECKING:
@@ -25,4 +25,16 @@ class JavaScriptAPI:
 
     def on_ready(self) -> None:
         self._ui.handle_js_ready()
+
+    def get_settings_metadata(self) -> Dict[str, Any]:
+        return self._ui.handle_js_get_settings_metadata()
+
+    def get_settings_values(self) -> Dict[str, Any]:
+        return self._ui.handle_js_get_settings_values()
+
+    def update_setting(self, key: str, value: Any) -> bool:
+        return self._ui.handle_js_update_setting(key, value)
+
+    def save_settings(self) -> bool:
+        return self._ui.handle_js_save_settings()
 

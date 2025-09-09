@@ -1,28 +1,34 @@
 import fuzzysearch
 from loguru import logger
 from src.ports.search_port import SearchPort
+from src.ports.settings_port import SettingsServicePort
 from src.domain.models import ClipboardItem
 
 
 class FuzzySearchAdapter(SearchPort):
-    def __init__(
-        self,
-        max_substitutions: int = None,
-        max_insertions: int = None,
-        max_deletions: int = None,
-        max_l_dist: int = 1,
-        case_sensitive: bool = False,
-    ):
-        self.max_substitutions = max_substitutions
-        self.max_insertions = max_insertions
-        self.max_deletions = max_deletions
-        self.max_l_dist = max_l_dist
-        self.case_sensitive = case_sensitive
-        logger.debug(
-            f"FuzzySearchAdapter initialized with max_substitutions={max_substitutions}, "
-            f"max_insertions={max_insertions}, max_deletions={max_deletions}, "
-            f"max_l_dist={max_l_dist}, case_sensitive={case_sensitive}"
-        )
+    def __init__(self, settings_service: SettingsServicePort):
+        self._settings_service = settings_service
+        logger.debug("FuzzySearchAdapter initialized with settings service")
+
+    @property
+    def max_substitutions(self) -> int:
+        return self._settings_service.get_settings().get_value("fuzzy_search.max_substitutions")
+
+    @property
+    def max_insertions(self) -> int:
+        return self._settings_service.get_settings().get_value("fuzzy_search.max_insertions")
+
+    @property
+    def max_deletions(self) -> int:
+        return self._settings_service.get_settings().get_value("fuzzy_search.max_deletions")
+
+    @property
+    def max_l_dist(self) -> int:
+        return self._settings_service.get_settings().get_value("fuzzy_search.max_l_dist")
+
+    @property
+    def case_sensitive(self) -> bool:
+        return self._settings_service.get_settings().get_value("fuzzy_search.case_sensitive")
 
     def search(self, items: list[ClipboardItem], query: str) -> list[ClipboardItem]:
         if not query:

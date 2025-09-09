@@ -29,6 +29,18 @@
     .modal .head { padding: 10px; border-bottom: 1px solid #e5e5e5; font-weight: 600; }
     .modal .body { padding: 10px; overflow: auto; white-space: pre-wrap; font-family: Consolas, Menlo, monospace; font-size: 12px; }
     .modal .foot { padding: 8px; border-top: 1px solid #e5e5e5; display: flex; justify-content: flex-end; gap: 8px; }
+    
+    .settings-body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; white-space: normal; }
+    .settings-group { margin-bottom: 20px; }
+    .settings-group h3 { margin: 0 0 8px 0; font-size: 14px; color: #333; }
+    .settings-group .description { font-size: 12px; color: #666; margin-bottom: 12px; }
+    .setting-item { margin-bottom: 16px; }
+    .setting-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .setting-description { font-size: 11px; color: #666; margin-bottom: 6px; }
+    .setting-input { width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid #ddd; border-radius: 3px; }
+    .setting-input[type="checkbox"] { width: auto; }
+    .setting-input[type="range"] { width: 100%; }
+    .range-display { font-size: 12px; color: #666; margin-top: 2px; }
   </style>
   <script>
     let state = { items: [], selected: -1 };
@@ -86,6 +98,225 @@
     }
 
     function onCloseModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function onSettings() {
+      loadSettings();
+    }
+
+    async function loadSettings() {
+      if (!window.pywebview || !pywebview.api) {
+        showMessage({message: 'Settings API not available', type: 'error'});
+        return;
+      }
+
+      try {
+        const metadata = await pywebview.api.get_settings_metadata();
+        const values = await pywebview.api.get_settings_values();
+        showSettingsModal(metadata, values);
+      } catch (e) {
+        showMessage({message: 'Failed to load settings: ' + e.message, type: 'error'});
+      }
+    }
+
+    function showSettingsModal(metadata, values) {
+      const modal = document.getElementById('modal');
+      const head = modal.querySelector('.head');
+      const body = modal.querySelector('.body');
+      const foot = modal.querySelector('.foot');
+
+      head.textContent = 'Settings';
+      body.className = 'body settings-body';
+      body.innerHTML = '';
+
+      Object.keys(metadata).forEach(groupKey => {
+        const group = metadata[groupKey];
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'settings-group';
+
+        const groupTitle = document.createElement('h3');
+        groupTitle.textContent = group.display_name;
+        groupDiv.appendChild(groupTitle);
+
+        if (group.description) {
+          const groupDesc = document.createElement('div');
+          groupDesc.className = 'description';
+          groupDesc.textContent = group.description;
+          groupDiv.appendChild(groupDesc);
+        }
+
+        Object.keys(group.settings).forEach(settingKey => {
+          const setting = group.settings[settingKey];
+          const settingDiv = createSettingElement(setting, values[settingKey]);
+          groupDiv.appendChild(settingDiv);
+        });
+
+        body.appendChild(groupDiv);
+      });
+
+      foot.innerHTML = '<button onclick="onCloseModal()">Cancel</button><button onclick="saveSettings()">Save</button>';
+      modal.style.display = 'flex';
+    }
+
+    function createSettingElement(setting, currentValue) {
+      const div = document.createElement('div');
+      div.className = 'setting-item';
+
+      const label = document.createElement('label');
+      label.className = 'setting-label';
+      label.textContent = setting.display_name;
+      label.setAttribute('for', setting.key);
+      div.appendChild(label);
+
+      if (setting.description) {
+        const desc = document.createElement('div');
+        desc.className = 'setting-description';
+        desc.textContent = setting.description;
+        div.appendChild(desc);
+      }
+
+      const input = createInputElement(setting, currentValue);
+      div.appendChild(input);
+
+      return div;
+    }
+
+    function createInputElement(setting, currentValue) {
+      const type = setting.type;
+      let input;
+
+      switch (type) {
+        case 'boolean':
+          input = document.createElement('input');
+          input.type = 'checkbox';
+          input.checked = currentValue || false;
+          break;
+
+        case 'integer':
+          input = document.createElement('input');
+          input.type = 'number';
+          input.step = '1';
+          input.value = currentValue !== null ? currentValue : setting.default_value;
+          if (setting.min_value !== null) input.min = setting.min_value;
+          if (setting.max_value !== null) input.max = setting.max_value;
+          break;
+
+        case 'float':
+          input = document.createElement('input');
+          input.type = 'number';
+          input.step = setting.step || '0.1';
+          input.value = currentValue !== null ? currentValue : setting.default_value;
+          if (setting.min_value !== null) input.min = setting.min_value;
+          if (setting.max_value !== null) input.max = setting.max_value;
+          break;
+
+        case 'slider':
+          const container = document.createElement('div');
+          input = document.createElement('input');
+          input.type = 'range';
+          input.min = setting.min_value;
+          input.max = setting.max_value;
+          input.step = setting.step || '1';
+          input.value = currentValue !== null ? currentValue : setting.default_value;
+          
+          const display = document.createElement('div');
+          display.className = 'range-display';
+          display.textContent = input.value;
+
+          input.addEventListener('input', () => {
+            display.textContent = input.value;
+          });
+
+          container.appendChild(input);
+          container.appendChild(display);
+          input = container;
+          break;
+
+        default:
+          input = document.createElement('input');
+          input.type = 'text';
+          input.value = currentValue || setting.default_value || '';
+      }
+
+      if (input.querySelector) {
+        const actualInput = input.querySelector('input') || input;
+        actualInput.className = 'setting-input';
+        actualInput.id = setting.key;
+        actualInput.dataset.settingKey = setting.key;
+        actualInput.dataset.settingType = setting.type;
+      } else {
+        input.className = 'setting-input';
+        input.id = setting.key;
+        input.dataset.settingKey = setting.key;
+        input.dataset.settingType = setting.type;
+      }
+
+      return input;
+    }
+
+    async function saveSettings() {
+      if (!window.pywebview || !pywebview.api) {
+        showMessage({message: 'Settings API not available', type: 'error'});
+        return;
+      }
+
+      const settingsInputs = document.querySelectorAll('[data-setting-key]');
+      let hasChanges = false;
+      let hasErrors = false;
+
+      for (const input of settingsInputs) {
+        const key = input.dataset.settingKey;
+        const type = input.dataset.settingType;
+        let value;
+
+        try {
+          switch (type) {
+            case 'boolean':
+              value = input.checked;
+              break;
+            case 'integer':
+              value = input.value === '' ? null : parseInt(input.value, 10);
+              break;
+            case 'float':
+            case 'slider':
+              value = input.value === '' ? null : parseFloat(input.value);
+              break;
+            default:
+              value = input.value;
+          }
+
+          const success = await pywebview.api.update_setting(key, value);
+          if (success) {
+            hasChanges = true;
+          } else {
+            hasErrors = true;
+            console.error(`Failed to update setting ${key} to ${value}`);
+          }
+        } catch (e) {
+          hasErrors = true;
+          console.error(`Error updating setting ${key}:`, e);
+        }
+      }
+
+      if (hasErrors) {
+        showMessage({message: 'Some settings could not be updated', type: 'warning'});
+      }
+
+      if (hasChanges) {
+        try {
+          const saveSuccess = await pywebview.api.save_settings();
+          if (saveSuccess) {
+            showMessage({message: 'Settings saved successfully', type: 'success'});
+            onCloseModal();
+          } else {
+            showMessage({message: 'Failed to save settings to file', type: 'error'});
+          }
+        } catch (e) {
+          showMessage({message: 'Error saving settings: ' + e.message, type: 'error'});
+        }
+      } else {
+        onCloseModal();
+      }
+    }
 
     function onDelete() {
       if (state.selected < 0) { showMessage({message: 'Please select an item to delete.', type: 'warning'}); return; }
@@ -148,6 +379,7 @@
       document.getElementById('copy').addEventListener('click', onCopy);
       document.getElementById('view').addEventListener('click', onView);
       document.getElementById('clear').addEventListener('click', onClear);
+      document.getElementById('settings').addEventListener('click', onSettings);
       document.getElementById('close-modal').addEventListener('click', onCloseModal);
       document.getElementById('copy-modal').addEventListener('click', copyFromModal);
       
@@ -172,8 +404,9 @@
 <body>
   <div class="wrap">
     <div class="top">
-      <div>??</div>
+      <div>🔍</div>
       <input id="search" type="text" placeholder="Search..." />
+      <button id="settings">⚙️</button>
     </div>
     <div class="content">
       <table>

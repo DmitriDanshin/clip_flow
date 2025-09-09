@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clip Flow - Settings</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f5f5f5; }
+    .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { margin: 0; color: #333; font-size: 24px; }
+    
+    .settings-group { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .settings-group h2 { margin: 0 0 8px 0; font-size: 16px; color: #333; }
+    .settings-group .description { font-size: 14px; color: #666; margin-bottom: 20px; }
+    
+    .setting-item { margin-bottom: 20px; }
+    .setting-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #333; }
+    .setting-description { font-size: 12px; color: #666; margin-bottom: 8px; }
+    .setting-input { width: 100%; padding: 8px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    .setting-input:focus { outline: none; border-color: #007AFF; box-shadow: 0 0 0 2px rgba(0,122,255,0.2); }
+    .setting-input[type="checkbox"] { width: auto; margin-right: 8px; }
+    .setting-input[type="range"] { width: 100%; }
+    .range-display { font-size: 12px; color: #666; margin-top: 4px; text-align: center; }
+    
+    .actions { background: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .btn { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; margin: 0 5px; }
+    .btn-primary { background: #007AFF; color: white; }
+    .btn-primary:hover { background: #0056CC; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    
+    .loading { text-align: center; padding: 40px; color: #666; }
+  </style>
+  <script>
+    let settingsData = null;
+
+    async function loadSettings() {
+      if (!window.pywebview || !pywebview.api) {
+        document.getElementById('content').innerHTML = '<div class="loading">Settings API not available</div>';
+        return;
+      }
+
+      try {
+        const metadata = await pywebview.api.get_settings_metadata();
+        const values = await pywebview.api.get_settings_values();
+        renderSettings(metadata, values);
+      } catch (e) {
+        document.getElementById('content').innerHTML = '<div class="loading">Failed to load settings: ' + e.message + '</div>';
+      }
+    }
+
+    function renderSettings(metadata, values) {
+      settingsData = { metadata, values };
+      const container = document.getElementById('settings-container');
+      container.innerHTML = '';
+
+      Object.keys(metadata).forEach(groupKey => {
+        const group = metadata[groupKey];
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'settings-group';
+
+        const groupTitle = document.createElement('h2');
+        groupTitle.textContent = group.display_name;
+        groupDiv.appendChild(groupTitle);
+
+        if (group.description) {
+          const groupDesc = document.createElement('div');
+          groupDesc.className = 'description';
+          groupDesc.textContent = group.description;
+          groupDiv.appendChild(groupDesc);
+        }
+
+        Object.keys(group.settings).forEach(settingKey => {
+          const setting = group.settings[settingKey];
+          const settingDiv = createSettingElement(setting, values[settingKey]);
+          groupDiv.appendChild(settingDiv);
+        });
+
+        container.appendChild(groupDiv);
+      });
+
+      document.getElementById('content').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    function createSettingElement(setting, currentValue) {
+      const div = document.createElement('div');
+      div.className = 'setting-item';
+
+      const label = document.createElement('label');
+      label.className = 'setting-label';
+      label.textContent = setting.display_name;
+      label.setAttribute('for', setting.key);
+      div.appendChild(label);
+
+      if (setting.description) {
+        const desc = document.createElement('div');
+        desc.className = 'setting-description';
+        desc.textContent = setting.description;
+        div.appendChild(desc);
+      }
+
+      const input = createInputElement(setting, currentValue);
+      div.appendChild(input);
+
+      return div;
+    }
+
+    function createInputElement(setting, currentValue) {
+      const type = setting.type;
+      let input;
+
+      switch (type) {
+        case 'boolean':
+          const checkboxContainer = document.createElement('div');
+          input = document.createElement('input');
+          input.type = 'checkbox';
+          input.checked = currentValue || false;
+          const checkboxLabel = document.createElement('span');
+          checkboxLabel.textContent = input.checked ? 'Enabled' : 'Disabled';
+          input.addEventListener('change', () => {
+            checkboxLabel.textContent = input.checked ? 'Enabled' : 'Disabled';
+          });
+          checkboxContainer.appendChild(input);
+          checkboxContainer.appendChild(checkboxLabel);
+          input = checkboxContainer;
+          break;
+
+        case 'integer':
+          input = document.createElement('input');
+          input.type = 'number';
+          input.step = '1';
+          input.value = currentValue !== null ? currentValue : '';
+          input.placeholder = setting.default_value !== null ? `Default: ${setting.default_value}` : 'None';
+          if (setting.min_value !== null) input.min = setting.min_value;
+          if (setting.max_value !== null) input.max = setting.max_value;
+          break;
+
+        case 'float':
+          input = document.createElement('input');
+          input.type = 'number';
+          input.step = setting.step || '0.1';
+          input.value = currentValue !== null ? currentValue : '';
+          input.placeholder = `Default: ${setting.default_value}`;
+          if (setting.min_value !== null) input.min = setting.min_value;
+          if (setting.max_value !== null) input.max = setting.max_value;
+          break;
+
+        case 'slider':
+          const container = document.createElement('div');
+          input = document.createElement('input');
+          input.type = 'range';
+          input.min = setting.min_value;
+          input.max = setting.max_value;
+          input.step = setting.step || '1';
+          input.value = currentValue !== null ? currentValue : setting.default_value;
+          
+          const display = document.createElement('div');
+          display.className = 'range-display';
+          display.textContent = `Value: ${input.value}`;
+
+          input.addEventListener('input', () => {
+            display.textContent = `Value: ${input.value}`;
+          });
+
+          container.appendChild(input);
+          container.appendChild(display);
+          input = container;
+          break;
+
+        default:
+          input = document.createElement('input');
+          input.type = 'text';
+          input.value = currentValue || setting.default_value || '';
+      }
+
+      if (input.querySelector) {
+        const actualInput = input.querySelector('input') || input;
+        actualInput.className = 'setting-input';
+        actualInput.id = setting.key;
+        actualInput.dataset.settingKey = setting.key;
+        actualInput.dataset.settingType = setting.type;
+      } else {
+        input.className = 'setting-input';
+        input.id = setting.key;
+        input.dataset.settingKey = setting.key;
+        input.dataset.settingType = setting.type;
+      }
+
+      return input;
+    }
+
+    async function saveSettings() {
+      if (!window.pywebview || !pywebview.api) {
+        alert('Settings API not available');
+        return;
+      }
+
+      const settingsInputs = document.querySelectorAll('[data-setting-key]');
+      let hasChanges = false;
+      let hasErrors = false;
+
+      for (const input of settingsInputs) {
+        const key = input.dataset.settingKey;
+        const type = input.dataset.settingType;
+        let value;
+
+        try {
+          switch (type) {
+            case 'boolean':
+              value = input.checked;
+              break;
+            case 'integer':
+              value = input.value === '' ? null : parseInt(input.value, 10);
+              break;
+            case 'float':
+            case 'slider':
+              value = input.value === '' ? null : parseFloat(input.value);
+              break;
+            default:
+              value = input.value;
+          }
+
+          const success = await pywebview.api.update_setting(key, value);
+          if (success) {
+            hasChanges = true;
+          } else {
+            hasErrors = true;
+            console.error(`Failed to update setting ${key} to ${value}`);
+          }
+        } catch (e) {
+          hasErrors = true;
+          console.error(`Error updating setting ${key}:`, e);
+        }
+      }
+
+      if (hasErrors) {
+        alert('Some settings could not be updated');
+        return;
+      }
+
+      if (hasChanges) {
+        try {
+          const saveSuccess = await pywebview.api.save_settings();
+          if (saveSuccess) {
+            alert('Settings saved successfully!');
+            closeWindow();
+          } else {
+            alert('Failed to save settings to file');
+          }
+        } catch (e) {
+          alert('Error saving settings: ' + e.message);
+        }
+      } else {
+        closeWindow();
+      }
+    }
+
+    function closeWindow() {
+      if (window.pywebview && pywebview.api && pywebview.api.close_settings_window) {
+        pywebview.api.close_settings_window();
+      } else {
+        window.close();
+      }
+    }
+
+    function resetToDefaults() {
+      if (!confirm('Reset all settings to default values?')) return;
+      
+      const settingsInputs = document.querySelectorAll('[data-setting-key]');
+      settingsInputs.forEach(input => {
+        const key = input.dataset.settingKey;
+        const type = input.dataset.settingType;
+        
+        // Find the setting metadata to get default value
+        let defaultValue = null;
+        Object.values(settingsData.metadata).forEach(group => {
+          if (group.settings[key]) {
+            defaultValue = group.settings[key].default_value;
+          }
+        });
+
+        switch (type) {
+          case 'boolean':
+            input.checked = defaultValue || false;
+            const label = input.parentElement.querySelector('span');
+            if (label) label.textContent = input.checked ? 'Enabled' : 'Disabled';
+            break;
+          case 'integer':
+          case 'float':
+            input.value = defaultValue !== null ? defaultValue : '';
+            break;
+          case 'slider':
+            input.value = defaultValue !== null ? defaultValue : 0;
+            const display = input.parentElement.querySelector('.range-display');
+            if (display) display.textContent = `Value: ${input.value}`;
+            break;
+          default:
+            input.value = defaultValue || '';
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('save-btn').addEventListener('click', saveSettings);
+      document.getElementById('cancel-btn').addEventListener('click', closeWindow);
+      document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
+      
+      loadSettings();
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Clip Flow Settings</h1>
+    </div>
+
+    <div id="loading" class="loading">Loading settings...</div>
+    
+    <div id="content" style="display: none;">
+      <div id="settings-container"></div>
+      
+      <div class="actions">
+        <button id="reset-btn" class="btn btn-secondary">Reset to Defaults</button>
+        <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
+        <button id="save-btn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

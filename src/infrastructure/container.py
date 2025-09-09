@@ -3,25 +3,33 @@ import time
 from loguru import logger
 
 from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
+from src.adapters.json_settings_adapter import JsonSettingsAdapter
 from src.adapters.pyperclip_adapter import PyperclipAdapter
 from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
 from src.adapters.system_tray_adapter import SystemTrayAdapter
 from src.adapters.ui.pywebview_ui_adapter import PyWebViewUIAdapter
 from src.application.app_service import AppService
+from src.application.settings_service import SettingsService
+from src.domain.app_settings import create_app_settings
 
 
 class Container:
     def __init__(self):
         self.clipboard_adapter = PyperclipAdapter()
         self.storage_adapter = SqliteStorageAdapter()
-        self.ui_adapter = PyWebViewUIAdapter()
 
-        # Hardcoded configuration values
-        max_l_dist = 2
-        case_sensitive = False
-        self.search_adapter = FuzzySearchAdapter(
-            max_l_dist=max_l_dist, case_sensitive=case_sensitive
+        # Initialize settings system
+        self.settings_repository = JsonSettingsAdapter()
+        app_settings = create_app_settings()
+        self.settings_service = SettingsService(
+            repository=self.settings_repository,
+            settings=app_settings
         )
+
+        # Initialize UI and search adapters with settings
+        self.ui_adapter = PyWebViewUIAdapter()
+        self.ui_adapter.set_settings_service(self.settings_service)
+        self.search_adapter = FuzzySearchAdapter(settings_service=self.settings_service)
         self.system_tray = SystemTrayAdapter()
 
         self.app_service = AppService(

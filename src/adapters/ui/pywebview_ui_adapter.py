@@ -1,6 +1,6 @@
 
 import json
-from typing import Callable
+from typing import Callable, Dict, Any
 
 from loguru import logger
 
@@ -8,10 +8,11 @@ import webview
 from src.ports.ui_port import UIPort
 from src.adapters.ui.javascript_api import JavaScriptAPI
 from src.utils.assets import asset_uri as get_asset_uri
+from src.ports.settings_port import SettingsServicePort
 
 
 class PyWebViewUIAdapter(UIPort):
-    def __init__(self):
+    def __init__(self, settings_service: SettingsServicePort = None):
         if webview is None:
             raise RuntimeError(
                 "pywebview is not installed. Please `pip install pywebview`."
@@ -19,6 +20,7 @@ class PyWebViewUIAdapter(UIPort):
 
         self.window: webview.Window | None = None
         self._api = JavaScriptAPI(self)
+        self._settings_service = settings_service
 
         self._copy_callback: Callable[[int], None] | None = None
         self._search_callback: Callable[[int | str], None] | None = None
@@ -33,6 +35,9 @@ class PyWebViewUIAdapter(UIPort):
         self._request_focus = False
 
         logger.debug("PyWebViewUIAdapter initialized.")
+        
+    def set_settings_service(self, settings_service: SettingsServicePort) -> None:
+        self._settings_service = settings_service
 
     def show_history(self, items: list[str]) -> None:
         logger.debug(f"show_history called with {len(items)} items")
@@ -115,6 +120,7 @@ class PyWebViewUIAdapter(UIPort):
 
     def handle_js_ready(self) -> None:
         self._mark_js_ready()
+
 
     def show_window(self) -> None:
         if not self.window:
@@ -203,6 +209,70 @@ class PyWebViewUIAdapter(UIPort):
         if self._request_focus:
             self._request_focus = False
             self._evaluate_js("window.focusSearch();")
+
+    def handle_js_get_settings_metadata(self) -> Dict[str, Any]:
+        if not self._settings_service:
+            logger.warning("Settings service not available")
+            return {}
+        
+        settings = self._settings_service.get_settings()
+        metadata = {}
+        
+        for group_name, group in settings.get_groups().items():
+            metadata[group_name] = {
+                "display_name": group.display_name,
+                "description": group.description,
+                "settings": {}
+            }
+            
+            for setting_key, setting_def in group.settings.items():
+                meta = setting_def.metadata
+                metadata[group_name]["settings"][setting_key] = {
+                    "key": meta.key,
+                    "display_name": meta.display_name,
+                    "description": meta.description,
+                    "type": meta.setting_type.value,
+                    "default_value": meta.default_value,
+                    "min_value": meta.min_value,
+                    "max_value": meta.max_value,
+                    "step": meta.step
+                }
+        
+        logger.debug("Settings metadata provided to frontend")
+        return metadata
+
+    def handle_js_get_settings_values(self) -> Dict[str, Any]:
+        if not self._settings_service:
+            logger.warning("Settings service not available")
+            return {}
+        
+        values = self._settings_service.get_settings().get_all_values()
+        logger.debug(f"Settings values provided to frontend: {len(values)} settings")
+        return values
+
+    def handle_js_update_setting(self, key: str, value: Any) -> bool:
+        if not self._settings_service:
+            logger.warning("Settings service not available")
+            return False
+        
+        success = self._settings_service.update_setting(key, value)
+        if success:
+            logger.debug(f"Setting '{key}' updated via frontend to '{value}'")
+        else:
+            logger.warning(f"Failed to update setting '{key}' to '{value}' via frontend")
+        return success
+
+    def handle_js_save_settings(self) -> bool:
+        if not self._settings_service:
+            logger.warning("Settings service not available")
+            return False
+        
+        success = self._settings_service.save_settings()
+        if success:
+            logger.debug("Settings saved via frontend")
+        else:
+            logger.error("Failed to save settings via frontend")
+        return success
 
     def _on_window_closing(self) -> None:
         logger.debug("Window closing event triggered - hiding to system tray")
