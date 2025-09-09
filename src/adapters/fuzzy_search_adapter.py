@@ -1,19 +1,30 @@
-from typing import List
+import fuzzysearch
 from loguru import logger
-from fuzzysearch import find_near_matches
 from src.ports.search_port import SearchPort
 from src.domain.models import ClipboardItem
 
 
 class FuzzySearchAdapter(SearchPort):
-    def __init__(self, max_l_dist: int = 1, case_sensitive: bool = False):
+    def __init__(
+        self,
+        max_substitutions: int = None,
+        max_insertions: int = None,
+        max_deletions: int = None,
+        max_l_dist: int = 1,
+        case_sensitive: bool = False,
+    ):
+        self.max_substitutions = max_substitutions
+        self.max_insertions = max_insertions
+        self.max_deletions = max_deletions
         self.max_l_dist = max_l_dist
         self.case_sensitive = case_sensitive
         logger.debug(
-            f"FuzzySearchAdapter initialized with max_l_dist={max_l_dist}, case_sensitive={case_sensitive}"
+            f"FuzzySearchAdapter initialized with max_substitutions={max_substitutions}, "
+            f"max_insertions={max_insertions}, max_deletions={max_deletions}, "
+            f"max_l_dist={max_l_dist}, case_sensitive={case_sensitive}"
         )
 
-    def search(self, items: List[ClipboardItem], query: str) -> List[ClipboardItem]:
+    def search(self, items: list[ClipboardItem], query: str) -> list[ClipboardItem]:
         if not query:
             return items.copy()
 
@@ -37,5 +48,12 @@ class FuzzySearchAdapter(SearchPort):
         fuzzy_query = query if self.case_sensitive else search_query
 
         return bool(
-            find_near_matches(fuzzy_query, fuzzy_content, max_l_dist=self.max_l_dist)
+            fuzzysearch.find_near_matches(
+                fuzzy_query,
+                fuzzy_content,
+                max_substitutions=self.max_substitutions,
+                max_insertions=self.max_insertions,
+                max_deletions=self.max_deletions,
+                max_l_dist=self.max_l_dist,
+            )
         )
