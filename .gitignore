@@ -164,4 +164,5 @@ cython_debug/
 
 clipboard_history.db
 
-assets"nul" 
+assets
+nul 
