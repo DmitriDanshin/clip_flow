@@ -10,6 +10,6 @@ repos:
   hooks:
     - id: taplo-format
       name: toml format
-      entry: uvx taplo format
+      entry: uv run taplo format
       language: system
       files: \.toml$
