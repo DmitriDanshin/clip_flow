@@ -75,8 +75,12 @@ class PyWebViewUIAdapter(UIPort):
             resizable=True,
             easy_drag=False,
             js_api=self._api,
+            on_top=False,
+            minimized=False,
         )
 
+        self.window.events.closing += self._on_window_closing
+        
         webview.start(self._after_start, debug=False)
 
     def register_copy_callback(self, callback: Callable[[int], None]) -> None:
@@ -113,7 +117,11 @@ class PyWebViewUIAdapter(UIPort):
         if not self.window:
             return
 
+        # Сначала показываем окно, затем восстанавливаем и фокусируемся
+        self.window.show()
         self.window.restore()
+        self.window.on_top = True
+        self.window.on_top = False  # Сбрасываем on_top для нормального поведения
 
         if self._js_ready:
             self._evaluate_js("window.focusSearch();")
@@ -121,7 +129,7 @@ class PyWebViewUIAdapter(UIPort):
             self._request_focus = True
 
         self._is_hidden = False
-        logger.debug("Window shown")
+        logger.debug("Window shown and focused")
 
     def hide_window(self) -> None:
         self._is_hidden = True
@@ -206,3 +214,10 @@ class PyWebViewUIAdapter(UIPort):
         if self._request_focus:
             self._request_focus = False
             self._evaluate_js("window.focusSearch();")
+
+    def _on_window_closing(self) -> None:
+        logger.debug("Window closing event triggered - hiding to system tray")
+        self.hide_window()
+        if self._hide_callback:
+            self._hide_callback()
+        return False
