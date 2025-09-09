@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from loguru import logger
 from src.ports.storage_port import StoragePort
-from src.domain.models import ClipboardHistory, ClipboardItem
+from src.domain.clipboard import ClipboardHistory, ClipboardItem
 from src.infrastructure.system_paths import (
     ensure_directories_exist,
     get_database_file_path,

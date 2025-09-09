@@ -1,14 +1,14 @@
 from typing import Dict
-from src.domain.settings_models import (
-    SettingMetadata, SettingType, IntegerSetting, BooleanSetting,
-    SettingsGroup, Settings
-)
+
+from .setting_metadata import SettingMetadata
+from .setting_type import SettingType
+from .integer_setting import IntegerSetting
+from .boolean_setting import BooleanSetting
+from .settings_group import SettingsGroup
+from .settings import Settings
 
 
 def create_app_settings() -> Settings:
-    """Create all application settings."""
-    
-    # Fuzzy Search Settings
     max_substitutions_setting = IntegerSetting(
         SettingMetadata(
             key="fuzzy_search.max_substitutions",
@@ -79,15 +79,9 @@ def create_app_settings() -> Settings:
             "fuzzy_search.case_sensitive": case_sensitive_setting,
         }
     )
-    
-    # Add more settings groups here as needed:
-    # ui_group = SettingsGroup(...)
-    # clipboard_group = SettingsGroup(...)
 
     all_groups = {
         "fuzzy_search": fuzzy_search_group,
-        # "ui": ui_group,
-        # "clipboard": clipboard_group,
     }
 
     return Settings(groups=all_groups)

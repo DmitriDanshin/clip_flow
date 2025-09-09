@@ -2,7 +2,7 @@ import fuzzysearch
 from loguru import logger
 from src.ports.search_port import SearchPort
 from src.ports.settings_port import SettingsServicePort
-from src.domain.models import ClipboardItem
+from src.domain.clipboard import ClipboardItem
 
 
 class FuzzySearchAdapter(SearchPort):

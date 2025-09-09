@@ -1,10 +1,10 @@
 from typing import List
 from loguru import logger
-from ..domain.models import ClipboardHistory
-from ..ports.clipboard_port import ClipboardPort
-from ..ports.storage_port import StoragePort
-from ..ports.ui_port import UIPort
-from ..ports.search_port import SearchPort
+from src.domain.clipboard import ClipboardHistory
+from src.ports.clipboard_port import ClipboardPort
+from src.ports.storage_port import StoragePort
+from src.ports.ui_port import UIPort
+from src.ports.search_port import SearchPort
 
 
 class ClipboardService:

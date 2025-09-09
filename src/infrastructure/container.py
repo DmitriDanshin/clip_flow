@@ -10,7 +10,7 @@ from src.adapters.system_tray_adapter import SystemTrayAdapter
 from src.adapters.ui.pywebview_ui_adapter import PyWebViewUIAdapter
 from src.application.app_service import AppService
 from src.application.settings_service import SettingsService
-from src.domain.app_settings import create_app_settings
+from src.domain.settings.app_settings import create_app_settings
 
 
 class Container:
@@ -18,7 +18,6 @@ class Container:
         self.clipboard_adapter = PyperclipAdapter()
         self.storage_adapter = SqliteStorageAdapter()
 
-        # Initialize settings system
         self.settings_repository = JsonSettingsAdapter()
         app_settings = create_app_settings()
         self.settings_service = SettingsService(
@@ -26,7 +25,6 @@ class Container:
             settings=app_settings
         )
 
-        # Initialize UI and search adapters with settings
         self.ui_adapter = PyWebViewUIAdapter()
         self.ui_adapter.set_settings_service(self.settings_service)
         self.search_adapter = FuzzySearchAdapter(settings_service=self.settings_service)

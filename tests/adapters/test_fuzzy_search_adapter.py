@@ -1,13 +1,23 @@
 import pytest
 from datetime import datetime
+from unittest.mock import Mock
 from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
-from src.domain.models import ClipboardItem
+from src.domain.clipboard import ClipboardItem
+from src.domain.settings.app_settings import create_app_settings
+from src.application.settings_service import SettingsService
 
 
 class TestFuzzySearchAdapter:
     @pytest.fixture
-    def adapter(self):
-        return FuzzySearchAdapter(max_l_dist=1, case_sensitive=False)
+    def mock_settings_service(self):
+        settings = create_app_settings()
+        mock_repository = Mock()
+        mock_repository.exists.return_value = False
+        return SettingsService(repository=mock_repository, settings=settings)
+    
+    @pytest.fixture
+    def adapter(self, mock_settings_service):
+        return FuzzySearchAdapter(settings_service=mock_settings_service)
 
     @pytest.fixture
     def sample_items(self):
@@ -85,12 +95,16 @@ class TestFuzzySearchAdapter:
 
         assert adapter.is_match(item, "Hexo") is False
 
-    def test_initialization_parameters(self):
-        adapter = FuzzySearchAdapter(max_l_dist=2, case_sensitive=True)
+    def test_initialization_parameters(self, mock_settings_service):
+        # Update the settings
+        mock_settings_service.update_setting("fuzzy_search.max_l_dist", 2)
+        mock_settings_service.update_setting("fuzzy_search.case_sensitive", True)
+        
+        adapter = FuzzySearchAdapter(settings_service=mock_settings_service)
         assert adapter.max_l_dist == 2
         assert adapter.case_sensitive is True
 
-    def test_default_parameters(self):
-        adapter = FuzzySearchAdapter()
-        assert adapter.max_l_dist == 1
-        assert adapter.case_sensitive is False
+    def test_default_parameters(self, mock_settings_service):
+        adapter = FuzzySearchAdapter(settings_service=mock_settings_service)
+        assert adapter.max_l_dist == 1  # default from app_settings.py
+        assert adapter.case_sensitive is False  # default from app_settings.py

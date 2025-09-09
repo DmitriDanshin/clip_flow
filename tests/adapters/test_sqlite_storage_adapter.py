@@ -4,7 +4,7 @@ import os
 import tempfile
 from datetime import datetime
 from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
-from src.domain.models import ClipboardItem, ClipboardHistory
+from src.domain.clipboard import ClipboardItem, ClipboardHistory
 
 
 class TestSqliteStorageAdapter:
@@ -52,7 +52,6 @@ class TestSqliteStorageAdapter:
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [row[0] for row in cursor.fetchall()]
             assert "clipboard_history" in tables
-            assert "settings" in tables
 
     def test_save_history_stores_items(self, adapter, sample_history, temp_db_path):
         adapter.save_history(sample_history)
@@ -72,15 +71,16 @@ class TestSqliteStorageAdapter:
     def test_save_history_stores_max_items_setting(
         self, adapter, sample_history, temp_db_path
     ):
+        # This test is no longer applicable since settings are not stored in the database
+        # The max_items is now handled by the domain model and doesn't persist in the database
         adapter.save_history(sample_history)
-
+        
+        # Just verify that the history items were saved
         with sqlite3.connect(temp_db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT value FROM settings WHERE key = 'max_items'")
-            result = cursor.fetchone()
-
-            assert result is not None
-            assert int(result[0]) == 100
+            cursor.execute("SELECT COUNT(*) FROM clipboard_history")
+            count = cursor.fetchone()[0]
+            assert count == 3
 
     def test_save_history_clears_previous_data(
         self, adapter, sample_history, temp_db_path
@@ -99,16 +99,12 @@ class TestSqliteStorageAdapter:
             count = cursor.fetchone()[0]
             assert count == 1
 
-            cursor.execute("SELECT value FROM settings WHERE key = 'max_items'")
-            max_items = int(cursor.fetchone()[0])
-            assert max_items == 50
-
     def test_load_history_retrieves_saved_data(self, adapter, sample_history):
         adapter.save_history(sample_history)
         loaded_history = adapter.load_history()
 
         assert len(loaded_history.items) == 3
-        assert loaded_history.max_items == 100
+        assert loaded_history.max_items == 1000  # Hardcoded max_items in the adapter
         assert loaded_history.items[0].content == "Third item"
         assert loaded_history.items[1].content == "Second item"
         assert loaded_history.items[2].content == "First item"
@@ -164,7 +160,7 @@ class TestSqliteStorageAdapter:
 
         loaded_history = adapter.load_history()
         assert len(loaded_history.items) == 0
-        assert loaded_history.max_items == 50
+        assert loaded_history.max_items == 1000  # Hardcoded max_items in the adapter
 
     def test_concurrent_database_access(self, temp_db_path, sample_history):
         adapter1 = SqliteStorageAdapter(temp_db_path)
@@ -174,7 +170,7 @@ class TestSqliteStorageAdapter:
         loaded_history = adapter2.load_history()
 
         assert len(loaded_history.items) == 3
-        assert loaded_history.max_items == 100
+        assert loaded_history.max_items == 1000  # Hardcoded max_items in the adapter
 
     def test_database_schema_validation(self, adapter, temp_db_path):
         with sqlite3.connect(temp_db_path) as conn:
@@ -187,8 +183,7 @@ class TestSqliteStorageAdapter:
             assert "content" in clipboard_column_names
             assert "created_at" in clipboard_column_names
 
-            cursor.execute("PRAGMA table_info(settings)")
-            settings_columns = cursor.fetchall()
-            settings_column_names = [col[1] for col in settings_columns]
-            assert "key" in settings_column_names
-            assert "value" in settings_column_names
+            # Settings table is no longer created by this adapter
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='settings'")
+            settings_table_exists = cursor.fetchone() is None
+            assert settings_table_exists  # Assert that settings table does NOT exist

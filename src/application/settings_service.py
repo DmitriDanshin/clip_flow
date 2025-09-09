@@ -1,7 +1,7 @@
 from typing import Dict, Any
 from loguru import logger
 
-from src.domain.settings_models import Settings
+from src.domain.settings import Settings
 from src.ports.settings_port import SettingsRepositoryPort, SettingsServicePort
 
 

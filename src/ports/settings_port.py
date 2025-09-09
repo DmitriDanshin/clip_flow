@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
-from src.domain.settings_models import Settings
+from src.domain.settings import Settings
 
 
 class SettingsRepositoryPort(ABC):

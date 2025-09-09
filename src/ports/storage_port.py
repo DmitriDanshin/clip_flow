@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.models import ClipboardHistory
+from src.domain.clipboard import ClipboardHistory
 
 
 class StoragePort(ABC):

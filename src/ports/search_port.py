@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from ..domain.models import ClipboardItem
+from ..domain.clipboard import ClipboardItem
 
 
 class SearchPort(ABC):
