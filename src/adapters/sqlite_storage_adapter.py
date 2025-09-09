@@ -31,12 +31,6 @@ class SqliteStorageAdapter(StoragePort):
                         created_at TEXT NOT NULL
                     )
                 """)
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS settings (
-                        key TEXT PRIMARY KEY,
-                        value TEXT NOT NULL
-                    )
-                """)
                 conn.commit()
                 logger.trace("Database initialized successfully")
         except sqlite3.Error as e:
@@ -49,12 +43,6 @@ class SqliteStorageAdapter(StoragePort):
                 cursor = conn.cursor()
 
                 cursor.execute("DELETE FROM clipboard_history")
-                cursor.execute("DELETE FROM settings WHERE key = 'max_items'")
-
-                cursor.execute(
-                    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
-                    ("max_items", str(history.max_items)),
-                )
 
                 for item in history.items:
                     cursor.execute(
@@ -78,9 +66,7 @@ class SqliteStorageAdapter(StoragePort):
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute("SELECT value FROM settings WHERE key = 'max_items'")
-                max_items_result = cursor.fetchone()
-                max_items = int(max_items_result[0]) if max_items_result else 1000
+                max_items = 1000  # Hardcoded max items
 
                 cursor.execute(
                     "SELECT content, created_at FROM clipboard_history ORDER BY created_at DESC"

@@ -68,7 +68,7 @@ uvx ruff check .
 - [ ] Resize/persist: remember window size/position
 - [ ] Support image clipboard history
 - [ ] Support files clipboard history
-- [ ] Right-click context menu on history items (with Delete) or using the Del key
+- [x] Right-click context menu on history items (with Delete) or using the Del key
 
 ### Platform Support
 - [ ] Create installer packages

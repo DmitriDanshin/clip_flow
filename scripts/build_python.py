@@ -22,12 +22,6 @@ def main():
         str(main_script),
     ]
 
-    schema_file = project_root / "settings_schema.json"
-    if schema_file.exists():
-        cmd.extend(["--add-data", f"{schema_file}{os.pathsep}."])
-        print(f"Including data file: {schema_file}")
-    else:
-        print("Warning: settings_schema.json not found at project root; skipping --add-data")
     
     assets_dir = project_root / "assets"
     if assets_dir.exists():

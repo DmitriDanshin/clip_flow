@@ -148,7 +148,6 @@
       document.getElementById('copy').addEventListener('click', onCopy);
       document.getElementById('view').addEventListener('click', onView);
       document.getElementById('clear').addEventListener('click', onClear);
-      document.getElementById('settings').addEventListener('click', () => { if (window.pywebview && pywebview.api) pywebview.api.show_settings(); });
       document.getElementById('close-modal').addEventListener('click', onCloseModal);
       document.getElementById('copy-modal').addEventListener('click', copyFromModal);
       
@@ -188,7 +187,6 @@
         <button id="view">View Full Text</button>
       </div>
       <div class="right">
-        <button id="settings">?? Settings</button>
         <button id="clear">Clear History</button>
       </div>
     </div>

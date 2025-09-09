@@ -6,4 +6,3 @@ Frontend module for Clip Flow UI.
 
 Structure:
 - `frontend/index.html` — main history UI
-- `frontend/settings.html` — settings UI

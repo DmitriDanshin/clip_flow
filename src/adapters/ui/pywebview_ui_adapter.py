@@ -6,24 +6,19 @@ from loguru import logger
 
 import webview
 from src.ports.ui_port import UIPort
-from src.ports.settings_port import SettingsPort
-from src.adapters.ui.pywebview_settings import PyWebViewSettings
 from src.adapters.ui.javascript_api import JavaScriptAPI
 from src.utils.assets import asset_uri as get_asset_uri
 
 
 class PyWebViewUIAdapter(UIPort):
-    def __init__(self, settings_port: SettingsPort):
+    def __init__(self):
         if webview is None:
             raise RuntimeError(
                 "pywebview is not installed. Please `pip install pywebview`."
             )
 
-        self.settings_port = settings_port
-
         self.window: webview.Window | None = None
         self._api = JavaScriptAPI(self)
-        self.settings_manager = PyWebViewSettings(settings_port, self._api)
 
         self._copy_callback: Callable[[int], None] | None = None
         self._search_callback: Callable[[int | str], None] | None = None
@@ -152,20 +147,6 @@ class PyWebViewUIAdapter(UIPort):
         if self.window:
             self.window.destroy()
 
-        if self.settings_manager:
-            self.settings_manager.destroy_window()
-
-    def show_settings_window(self) -> None:
-        self.settings_manager.show_settings_window()
-
-    def get_settings_schema(self) -> str:
-        return self.settings_manager.get_settings_schema()
-
-    def get_current_settings(self) -> str:
-        return self.settings_manager.get_current_settings()
-
-    def save_settings_from_json(self, settings_json: str) -> None:
-        self.settings_manager.save_settings_from_json(settings_json)
 
     def _push_history_to_webview(self) -> None:
         if not self.window:

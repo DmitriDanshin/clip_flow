@@ -6,29 +6,19 @@ from src.adapters.fuzzy_search_adapter import FuzzySearchAdapter
 from src.adapters.pyperclip_adapter import PyperclipAdapter
 from src.adapters.sqlite_storage_adapter import SqliteStorageAdapter
 from src.adapters.system_tray_adapter import SystemTrayAdapter
-from src.adapters.settings.json_settings_adapter import JsonSettingsAdapter
-from src.adapters.settings.json_settings_schema_adapter import JsonSettingsSchemaAdapter
 from src.adapters.ui.pywebview_ui_adapter import PyWebViewUIAdapter
 from src.application.app_service import AppService
 
 
 class Container:
     def __init__(self):
-        self.schema_adapter = JsonSettingsSchemaAdapter()
-        self.settings_adapter = JsonSettingsAdapter(schema_adapter=self.schema_adapter)
-
         self.clipboard_adapter = PyperclipAdapter()
         self.storage_adapter = SqliteStorageAdapter()
-        self.ui_adapter = PyWebViewUIAdapter(self.settings_adapter)
+        self.ui_adapter = PyWebViewUIAdapter()
 
-        max_l_dist = self.settings_adapter.get_setting(
-            "fuzzy_search_max_l_dist",
-            self.schema_adapter.get_default_value("fuzzy_search_max_l_dist"),
-        )
-        case_sensitive = self.settings_adapter.get_setting(
-            "fuzzy_search_case_sensitive",
-            self.schema_adapter.get_default_value("fuzzy_search_case_sensitive"),
-        )
+        # Hardcoded configuration values
+        max_l_dist = 2
+        case_sensitive = False
         self.search_adapter = FuzzySearchAdapter(
             max_l_dist=max_l_dist, case_sensitive=case_sensitive
         )
