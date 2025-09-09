@@ -20,6 +20,9 @@ class JavaScriptAPI:
     def on_clear(self) -> None:
         self._ui.handle_js_clear()
 
+    def on_delete(self, index: int) -> None:
+        self._ui.handle_js_delete(int(index))
+
     def on_ready(self) -> None:
         self._ui.handle_js_ready()
 

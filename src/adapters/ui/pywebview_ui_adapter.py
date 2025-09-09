@@ -28,6 +28,7 @@ class PyWebViewUIAdapter(UIPort):
         self._copy_callback: Callable[[int], None] | None = None
         self._search_callback: Callable[[int | str], None] | None = None
         self._clear_callback: Callable[[int], None] | None = None
+        self._delete_callback: Callable[[int], None] | None = None
         self._hide_callback: Callable[[int], None] | None = None
 
         self._current_items: list[str] = []
@@ -92,6 +93,9 @@ class PyWebViewUIAdapter(UIPort):
     def register_clear_callback(self, callback: Callable[[], None]) -> None:
         self._clear_callback = callback
 
+    def register_delete_callback(self, callback: Callable[[int], None]) -> None:
+        self._delete_callback = callback
+
     def register_hide_callback(self, callback: Callable[[], None]) -> None:
         self._hide_callback = callback
 
@@ -109,6 +113,10 @@ class PyWebViewUIAdapter(UIPort):
     def handle_js_clear(self) -> None:
         if self._clear_callback:
             self._clear_callback()
+
+    def handle_js_delete(self, index: int) -> None:
+        if self._delete_callback:
+            self._delete_callback(index)
 
     def handle_js_ready(self) -> None:
         self._mark_js_ready()

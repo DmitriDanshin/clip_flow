@@ -28,6 +28,10 @@ class UIPort(ABC):
         """Register callback for clear history action."""
 
     @abstractmethod
+    def register_delete_callback(self, callback: Callable[[int], None]) -> None:
+        """Register callback for delete item action."""
+
+    @abstractmethod
     def shutdown(self) -> None:
         """Shutdown the UI."""
 

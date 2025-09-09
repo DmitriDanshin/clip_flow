@@ -24,6 +24,7 @@ class ClipboardService:
         self.ui_port.register_copy_callback(self._on_copy_item)
         self.ui_port.register_search_callback(self._on_search)
         self.ui_port.register_clear_callback(self._on_clear_history)
+        self.ui_port.register_delete_callback(self._on_delete_item)
 
         self._current_filtered_items: List[str] = []
 
@@ -84,6 +85,26 @@ class ClipboardService:
         self._update_ui_display()
         self.ui_port.show_message("Clipboard history cleared!")
         logger.info("Clipboard history cleared.")
+
+    def _on_delete_item(self, index: int) -> None:
+        if 0 <= index < len(self._current_filtered_items):
+            content_to_delete = self._current_filtered_items[index]
+            
+            # Find the actual index in the full history by content
+            actual_index = -1
+            for i, item in enumerate(self.history.items):
+                if item.content == content_to_delete:
+                    actual_index = i
+                    break
+            
+            if actual_index != -1 and self.history.remove_item_by_index(actual_index):
+                self.storage_port.save_history(self.history)
+                self._update_ui_display()
+                logger.info(f"Deleted item at index {index}.")
+            else:
+                logger.warning(f"Failed to delete item at index {index}")
+        else:
+            logger.warning(f"Invalid delete index: {index}")
 
     def _update_ui_display(self) -> None:
         content_list = self.history.get_content_list()

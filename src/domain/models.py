@@ -43,6 +43,12 @@ class ClipboardHistory:
     def clear(self) -> None:
         self.items.clear()
 
+    def remove_item_by_index(self, index: int) -> bool:
+        if 0 <= index < len(self.items):
+            self.items.pop(index)
+            return True
+        return False
+
     def get_content_list(self) -> List[str]:
         return [item.content for item in self.items]
 
