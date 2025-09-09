@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 
@@ -16,6 +17,14 @@ def _find_project_root(start: Path | None = None) -> Path:
 
 
 def assets_dir() -> Path:
+    # Для PyInstaller - проверяем временную папку
+    if hasattr(sys, '_MEIPASS'):
+        # Собранное приложение
+        bundled_assets = Path(sys._MEIPASS) / 'assets'
+        if bundled_assets.exists():
+            return bundled_assets
+    
+    # Обычный режим разработки
     root = _find_project_root()
     candidates = [root / 'assets', Path.cwd() / 'assets']
     for d in candidates:
