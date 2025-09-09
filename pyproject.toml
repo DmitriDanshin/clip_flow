@@ -4,25 +4,25 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
-    "loguru>=0.7.3",
-    "pyperclip>=1.9.0",
-    "fuzzysearch>=0.8.0",
-    "platformdirs>=4.4.0",
-    "pystray>=0.19.5",
-    "pillow>=11.3.0",
-    "keyboard>=0.13.5",
-    "pywin32>=308",
-    "ttkthemes>=3.2.2",
-    "pywebview>=6.0",
+  "loguru>=0.7.3",
+  "pyperclip>=1.9.0",
+  "fuzzysearch>=0.8.0",
+  "platformdirs>=4.4.0",
+  "pystray>=0.19.5",
+  "pillow>=11.3.0",
+  "keyboard>=0.13.5",
+  "pywin32>=308",
+  "ttkthemes>=3.2.2",
+  "pywebview>=6.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.3.0",
-    "pyinstaller>=6.15.0",
-    "pytest>=8.4.1",
-    "pytest-cov>=6.2.1",
-    "ruff>=0.12.11",
+  "pre-commit>=4.3.0",
+  "pyinstaller>=6.15.0",
+  "pytest>=8.4.1",
+  "pytest-cov>=6.2.1",
+  "ruff>=0.12.11",
 ]
 
 [tool.ruff]
@@ -31,10 +31,10 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # pyflakes
+  "I", # isort
 ]
 ignore = []
 
@@ -45,9 +45,9 @@ force-single-line = false
 split-on-trailing-comma = true
 known-first-party = ["src"]
 section-order = [
-    "future",
-    "standard-library", 
-    "third-party",
-    "first-party",
-    "local-folder"
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
 ]

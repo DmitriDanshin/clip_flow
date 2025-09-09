@@ -5,3 +5,11 @@ repos:
     - id: ruff-check
       args: [ --fix, --select, I ]
     - id: ruff-format
+
+- repo: local
+  hooks:
+    - id: taplo-format
+      name: toml format
+      entry: uvx taplo format
+      language: system
+      files: \.toml$
