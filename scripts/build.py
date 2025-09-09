@@ -5,7 +5,7 @@ from pathlib import Path
 
 def run_script(script_path: Path) -> bool:
     try:
-        result = subprocess.run(
+        subprocess.run(
             [sys.executable, str(script_path)], 
             check=True,
             cwd=script_path.parent.parent

@@ -22,7 +22,6 @@ def main():
         str(main_script),
     ]
 
-    # Добавляем файлы данных
     schema_file = project_root / "settings_schema.json"
     if schema_file.exists():
         cmd.extend(["--add-data", f"{schema_file}{os.pathsep}."])
@@ -30,7 +29,6 @@ def main():
     else:
         print("Warning: settings_schema.json not found at project root; skipping --add-data")
     
-    # Добавляем папку assets
     assets_dir = project_root / "assets"
     if assets_dir.exists():
         cmd.extend(["--add-data", f"{assets_dir}{os.pathsep}assets"])
